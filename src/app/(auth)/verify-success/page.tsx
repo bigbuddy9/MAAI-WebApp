@@ -133,7 +133,7 @@ export default function VerifySuccessPage() {
     setError(null);
     setStatus('redirecting');
     setStatusText('Retrying...');
-    hasStarted.current = false;
+    hasChecked.current = false;
     redirectToCheckout();
   };
 
