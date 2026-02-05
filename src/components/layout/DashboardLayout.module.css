@@ -1,0 +1,210 @@
+/* Single-column mode (< 1200px) */
+.singleColumn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-bottom: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.singleContent {
+  width: 100%;
+  max-width: 520px;
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+/* Multi-panel dashboard mode */
+.dashboard {
+  flex: 1;
+  padding: 0 16px 16px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.panelGrid {
+  display: flex;
+  justify-content: center;
+  flex: 1;
+  min-height: 0;
+}
+
+/* Subtle vertical divider between panels */
+.panelWrapper + .panelWrapper {
+  border-left: 1px solid var(--color-border);
+}
+
+.panelWrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  flex: 1;
+  min-width: 0;
+}
+
+.panelContent {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Panel header bar: label left, swap button right */
+.panelHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 16px 8px;
+  flex-shrink: 0;
+}
+
+.panelHeaderLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.swapButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-primary);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.swapButton:hover {
+  background-color: var(--color-bg-elevated);
+  color: var(--color-text-secondary);
+  border-color: var(--color-border-light);
+}
+
+/* Single-panel mode header (hamburger menu) */
+.singleHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 16px 8px;
+  width: 100%;
+  max-width: 520px;
+  box-sizing: border-box;
+}
+
+/* Logo in menu popover */
+.menuLogo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 0 4px;
+}
+
+.selectorDivider {
+  height: 1px;
+  background-color: var(--color-border);
+  margin: 3px 12px;
+}
+
+/* Custom scrollbar for panels */
+.panelContent::-webkit-scrollbar {
+  width: 4px;
+}
+
+.panelContent::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.panelContent::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 2px;
+}
+
+.panelContent::-webkit-scrollbar-thumb:hover {
+  background: var(--color-border-light);
+}
+
+/* Panel Selector Overlay */
+.selectorOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+
+.selectorPopover {
+  background-color: #000000;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  width: 160px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.8);
+  overflow: hidden;
+  padding-bottom: 6px;
+}
+
+.selectorTitle {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 2px;
+  padding: 4px 12px 0;
+}
+
+.selectorOption {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 6px 12px;
+  border: none;
+  background: transparent;
+  border-radius: 0;
+  color: var(--color-text-primary);
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+  box-sizing: border-box;
+}
+
+.selectorOption:hover {
+  background-color: var(--color-bg-card);
+}
+
+.selectorOptionActive {
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.2), rgba(56, 189, 248, 0.2));
+  color: var(--color-text-primary);
+}
+
+.currentBadge {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  background-color: var(--color-bg-card);
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+/* Responsive: hide on mobile (sidebar already hidden) */
+@media (max-width: 768px) {
+  .dashboard {
+    padding: 0;
+  }
+}

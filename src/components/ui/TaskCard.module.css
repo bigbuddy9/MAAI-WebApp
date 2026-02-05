@@ -1,0 +1,72 @@
+.card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background-color: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.card:hover {
+  background-color: var(--color-bg-elevated);
+}
+
+.checkbox {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  border: 2px solid var(--color-border-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all var(--transition-fast);
+  cursor: pointer;
+}
+
+.checkboxChecked {
+  border-color: transparent;
+}
+
+.taskInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.taskName {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.taskNameCompleted {
+  color: var(--color-text-muted);
+  text-decoration: line-through;
+}
+
+.taskMeta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.goalBadge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.streakBadge {
+  font-size: 10px;
+  color: var(--color-text-muted);
+}

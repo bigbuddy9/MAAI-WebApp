@@ -1,0 +1,84 @@
+.sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 200px;
+  background-color: var(--color-bg-card);
+  border-right: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  padding: 20px 0;
+  z-index: 100;
+}
+
+.logo {
+  padding: 0 16px;
+  margin-bottom: 28px;
+}
+
+.logoRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.logoIcon {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
+.logoWordmark {
+  width: auto;
+  height: 18px;
+  object-fit: contain;
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0 8px;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  color: var(--color-text-muted);
+  transition: all var(--transition-fast);
+  font-size: var(--font-size-md);
+  font-weight: 500;
+}
+
+.navItem:hover {
+  background-color: var(--color-bg-elevated);
+  color: var(--color-text-secondary);
+}
+
+.navItemActive {
+  color: var(--color-text-primary);
+  background-color: var(--color-bg-elevated);
+}
+
+.navItemActive .navIcon svg path,
+.navItemActive .navIcon svg circle,
+.navItemActive .navIcon svg line {
+  /* Active icon color is set inline via props */
+}
+
+.navIcon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    display: none;
+  }
+}
