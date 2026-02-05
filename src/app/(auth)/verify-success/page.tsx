@@ -48,6 +48,8 @@ export default function VerifySuccessPage() {
     // If already has subscription (whitelisted), go straight to app
     if (hasSubscription) {
       setStatusText('Welcome back! Redirecting...');
+      // Set flag to prevent redirect loop in app layout
+      sessionStorage.setItem('wasWhitelisted', 'true');
       router.replace('/tracker');
       return;
     }

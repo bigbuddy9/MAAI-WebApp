@@ -24,8 +24,16 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   }, [session, isLoading, router]);
 
   // Redirect to plan picker if no active subscription
+  // Only redirect if we've confirmed there's no subscription (not just on initial load)
   useEffect(() => {
     if (!isLoading && !subLoading && session && !hasSubscription) {
+      // Check sessionStorage to prevent redirect loop after successful whitelist check
+      const wasWhitelisted = sessionStorage.getItem('wasWhitelisted');
+      if (wasWhitelisted === 'true') {
+        // Don't redirect, clear the flag and refetch
+        sessionStorage.removeItem('wasWhitelisted');
+        return;
+      }
       router.replace('/choose-plan');
     }
   }, [isLoading, subLoading, session, hasSubscription, router]);
