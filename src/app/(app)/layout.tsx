@@ -23,20 +23,27 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     }
   }, [session, isLoading, router]);
 
-  // Redirect to plan picker if no active subscription
-  // Only redirect if we've confirmed there's no subscription (not just on initial load)
+  // Hardcoded whitelist as failsafe - same as verify-success
+  const hardcodedWhitelist = [
+    'jessebarbato788@gmail.com',
+    'brunnno2002@gmail.com',
+    'jono.kazzaa@gmail.com',
+  ];
+
+  const userEmail = session?.user?.email?.toLowerCase() || '';
+  const isHardcodedWhitelisted = hardcodedWhitelist.includes(userEmail);
+
+  // Redirect to plan picker if no active subscription (but not for whitelisted users)
   useEffect(() => {
-    if (!isLoading && !subLoading && session && !hasSubscription) {
-      // Check sessionStorage to prevent redirect loop after successful whitelist check
+    if (!isLoading && !subLoading && session && !hasSubscription && !isHardcodedWhitelisted) {
+      // Check sessionStorage to prevent redirect loop
       const wasWhitelisted = sessionStorage.getItem('wasWhitelisted');
       if (wasWhitelisted === 'true') {
-        // Don't redirect, clear the flag and refetch
-        sessionStorage.removeItem('wasWhitelisted');
-        return;
+        return; // Don't redirect, keep the flag
       }
       router.replace('/choose-plan');
     }
-  }, [isLoading, subLoading, session, hasSubscription, router]);
+  }, [isLoading, subLoading, session, hasSubscription, isHardcodedWhitelisted, router]);
 
   if (isLoading || subLoading) {
     return (
