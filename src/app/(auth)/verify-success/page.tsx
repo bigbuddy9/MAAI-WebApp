@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import { useSubscription } from '@/contexts/SubscriptionContext';
 
 // Force dynamic rendering to avoid static prerender issues
 export const dynamic = 'force-dynamic';
@@ -18,9 +17,8 @@ const t = {
 
 export default function VerifySuccessPage() {
   const { session, isLoading: authLoading } = useAuth();
-  const { active: hasSubscription, isLoading: subLoading } = useSubscription();
   const router = useRouter();
-  const hasStarted = useRef(false);
+  const hasChecked = useRef(false);
   const [status, setStatus] = useState<'loading' | 'redirecting' | 'error'>('loading');
   const [statusText, setStatusText] = useState('Verifying your account...');
   const [error, setError] = useState<string | null>(null);
@@ -39,29 +37,46 @@ export default function VerifySuccessPage() {
       return;
     }
 
-    // Still loading subscription status
-    if (subLoading) {
-      setStatusText('Checking subscription...');
-      return;
-    }
+    // Only check once
+    if (hasChecked.current) return;
+    hasChecked.current = true;
 
-    // If already has subscription (whitelisted), go straight to app
-    if (hasSubscription) {
-      setStatusText('Welcome back! Redirecting...');
-      // Set flag to prevent redirect loop in app layout
-      sessionStorage.setItem('wasWhitelisted', 'true');
-      router.replace('/tracker');
-      return;
-    }
+    // Do our own subscription/whitelist check directly
+    checkSubscriptionAndRedirect();
+  }, [session, authLoading, router]);
 
-    // Otherwise, redirect to Stripe checkout
-    if (!hasStarted.current) {
-      hasStarted.current = true;
+  const checkSubscriptionAndRedirect = async () => {
+    if (!session) return;
+
+    setStatusText('Checking subscription...');
+
+    try {
+      const res = await fetch(
+        `/api/subscription?userId=${session.user.id}&email=${encodeURIComponent(session.user.email || '')}`
+      );
+      const data = await res.json();
+
+      console.log('Subscription check result:', data);
+
+      if (data.active) {
+        // User is whitelisted or has subscription - go to app
+        setStatusText('Welcome! Redirecting...');
+        sessionStorage.setItem('wasWhitelisted', 'true');
+        router.replace('/tracker');
+      } else {
+        // No subscription - redirect to Stripe checkout
+        setStatusText('Setting up your free trial...');
+        setStatus('redirecting');
+        redirectToCheckout();
+      }
+    } catch (err) {
+      console.error('Subscription check failed:', err);
+      // On error, try checkout anyway
       setStatusText('Setting up your free trial...');
       setStatus('redirecting');
       redirectToCheckout();
     }
-  }, [session, authLoading, hasSubscription, subLoading, router]);
+  };
 
   const redirectToCheckout = async () => {
     if (!session) {
