@@ -18,33 +18,52 @@ export default function VerifySuccessPage() {
   const { active: hasSubscription, isLoading: subLoading } = useSubscription();
   const router = useRouter();
   const hasStarted = useRef(false);
+  const [status, setStatus] = useState<'loading' | 'redirecting' | 'error'>('loading');
+  const [statusText, setStatusText] = useState('Verifying your account...');
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Wait for both auth and subscription to load
-    if (authLoading || subLoading) return;
+    // Still loading auth
+    if (authLoading) {
+      setStatusText('Verifying your account...');
+      return;
+    }
 
-    // If not logged in, go to login
+    // If not logged in after auth loaded, go to login
     if (!session) {
+      setStatusText('Redirecting to login...');
       router.replace('/login');
+      return;
+    }
+
+    // Still loading subscription status
+    if (subLoading) {
+      setStatusText('Checking subscription...');
       return;
     }
 
     // If already has subscription (whitelisted), go straight to app
     if (hasSubscription) {
+      setStatusText('Welcome back! Redirecting...');
       router.replace('/tracker');
       return;
     }
 
-    // Otherwise, redirect to Stripe checkout immediately
+    // Otherwise, redirect to Stripe checkout
     if (!hasStarted.current) {
       hasStarted.current = true;
+      setStatusText('Setting up your free trial...');
+      setStatus('redirecting');
       redirectToCheckout();
     }
   }, [session, authLoading, hasSubscription, subLoading, router]);
 
   const redirectToCheckout = async () => {
-    if (!session) return;
+    if (!session) {
+      setError('No session found. Please try logging in again.');
+      setStatus('error');
+      return;
+    }
 
     try {
       const response = await fetch('/api/checkout', {
@@ -55,28 +74,39 @@ export default function VerifySuccessPage() {
           email: session.user.email,
         }),
       });
+
       const data = await response.json();
 
       if (data.url) {
+        setStatusText('Redirecting to checkout...');
         window.location.href = data.url;
       } else {
-        // Show error instead of silently redirecting
-        setError(data.error || 'Failed to start checkout. Please try again.');
+        setError(data.error || 'Failed to create checkout session.');
+        setStatus('error');
       }
     } catch (err) {
-      setError('Connection error. Please try again.');
+      setError('Connection error. Please check your internet and try again.');
+      setStatus('error');
     }
   };
 
-  // Show error if checkout failed
-  if (error) {
+  const handleRetry = () => {
+    setError(null);
+    setStatus('redirecting');
+    setStatusText('Retrying...');
+    hasStarted.current = false;
+    redirectToCheckout();
+  };
+
+  // Error state
+  if (status === 'error' && error) {
     return (
       <div style={s.page}>
         <div style={s.container}>
           <div style={s.errorIcon}>!</div>
           <h1 style={s.title}>Something went wrong</h1>
           <p style={s.subtitle}>{error}</p>
-          <button onClick={() => { setError(null); hasStarted.current = false; redirectToCheckout(); }} style={s.retryButton}>
+          <button onClick={handleRetry} style={s.retryButton}>
             Try Again
           </button>
           <button onClick={() => router.replace('/login')} style={s.backButton}>
@@ -87,12 +117,12 @@ export default function VerifySuccessPage() {
     );
   }
 
-  // Loading state
+  // Loading/redirecting state
   return (
     <div style={s.page}>
       <div style={s.container}>
         <div style={s.spinner} />
-        <p style={s.text}>Setting up your free trial...</p>
+        <p style={s.text}>{statusText}</p>
       </div>
 
       <style>{`
