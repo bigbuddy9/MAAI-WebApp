@@ -85,9 +85,9 @@ const s: Record<string, React.CSSProperties> = {
     height: '100%',
     display: 'flex',
     justifyContent: 'center',
-    alignItems: 'flex-start',
-    paddingTop: 40,
-    overflowY: 'auto',
+    alignItems: 'center',
+    padding: '20px',
+    boxSizing: 'border-box',
   },
   profilePanel: {
     width: '100%',
@@ -96,7 +96,6 @@ const s: Record<string, React.CSSProperties> = {
     borderRadius: 16,
     border: '1px solid #1A1A1A',
     padding: '24px 16px',
-    marginBottom: 40,
     boxShadow: '0 8px 32px rgba(0, 0, 0, 0.6)',
   },
   settingsCard: {
