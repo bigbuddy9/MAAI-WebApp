@@ -18,35 +18,50 @@ const t = {
   radius2xl: 16,
 };
 
-// ─── FloatingDots — particles drift around the screen ───
+// ─── FloatingDots — particles rise then transition to floating ───
 interface FloatingParticle {
   id: number;
   x: number;
   y: number;
   vx: number;
   vy: number;
+  targetVx: number;
+  targetVy: number;
   size: number;
   opacity: number;
   flickerSpeed: number;
   flickerOffset: number;
 }
 
-function AscendingDots({ particleCount = 150 }: { particleCount?: number }) {
+const ASCEND_DURATION = 4000; // 4 seconds of rising
+const TRANSITION_DURATION = 2000; // 2 seconds to transition to floating
+
+function FloatingDots({ particleCount = 165 }: { particleCount?: number }) {
   const [particles, setParticles] = useState<FloatingParticle[]>([]);
   const animationRef = useRef<number | undefined>(undefined);
+  const startTimeRef = useRef<number>(0);
 
-  // Initialize particles
+  // Initialize particles with upward velocity
   useEffect(() => {
+    startTimeRef.current = performance.now();
     const initialParticles: FloatingParticle[] = [];
     for (let i = 0; i < particleCount; i++) {
-      const angle = Math.random() * Math.PI * 2;
-      const speed = 0.01 + Math.random() * 0.02;
+      // Random angle for eventual floating direction
+      const floatAngle = Math.random() * Math.PI * 2;
+      const floatSpeed = 0.01 + Math.random() * 0.02;
+
+      // Initial upward velocity (with slight horizontal variation)
+      const ascendSpeed = 0.08 + Math.random() * 0.06;
+      const horizontalDrift = (Math.random() - 0.5) * 0.02;
+
       initialParticles.push({
         id: i,
         x: Math.random() * 100,
-        y: Math.random() * 100,
-        vx: Math.cos(angle) * speed,
-        vy: Math.sin(angle) * speed,
+        y: Math.random() * 100 + 20, // Start slightly lower
+        vx: horizontalDrift,
+        vy: -ascendSpeed, // Negative = upward
+        targetVx: Math.cos(floatAngle) * floatSpeed,
+        targetVy: Math.sin(floatAngle) * floatSpeed,
         size: 1 + Math.random() * 1.5,
         opacity: 0.4 + Math.random() * 0.4,
         flickerSpeed: 2 + Math.random() * 4,
@@ -56,17 +71,37 @@ function AscendingDots({ particleCount = 150 }: { particleCount?: number }) {
     setParticles(initialParticles);
   }, [particleCount]);
 
-  // Animation loop
+  // Animation loop with phase transitions
   useEffect(() => {
     if (particles.length === 0) return;
 
     const animate = () => {
+      const elapsed = performance.now() - startTimeRef.current;
+
       setParticles(prev =>
         prev.map(particle => {
-          let newX = particle.x + particle.vx;
-          let newY = particle.y + particle.vy;
-          let newVx = particle.vx;
-          let newVy = particle.vy;
+          let currentVx = particle.vx;
+          let currentVy = particle.vy;
+
+          // Phase 1: Ascending (0 to ASCEND_DURATION)
+          // Phase 2: Transition (ASCEND_DURATION to ASCEND_DURATION + TRANSITION_DURATION)
+          // Phase 3: Floating (after transition)
+
+          if (elapsed > ASCEND_DURATION) {
+            const transitionProgress = Math.min(
+              (elapsed - ASCEND_DURATION) / TRANSITION_DURATION,
+              1
+            );
+            // Smooth easing for transition
+            const eased = 1 - Math.pow(1 - transitionProgress, 3);
+
+            // Interpolate velocity from current ascending to target floating
+            currentVx = particle.vx + (particle.targetVx - particle.vx) * eased * 0.02;
+            currentVy = particle.vy + (particle.targetVy - particle.vy) * eased * 0.02;
+          }
+
+          let newX = particle.x + currentVx;
+          let newY = particle.y + currentVy;
 
           // Wrap around edges
           if (newX < -2) newX = 102;
@@ -78,8 +113,8 @@ function AscendingDots({ particleCount = 150 }: { particleCount?: number }) {
             ...particle,
             x: newX,
             y: newY,
-            vx: newVx,
-            vy: newVy,
+            vx: currentVx,
+            vy: currentVy,
           };
         })
       );
@@ -113,7 +148,6 @@ function AscendingDots({ particleCount = 150 }: { particleCount?: number }) {
       }}
     >
       {particles.map(particle => {
-        // Calculate flicker using sine wave - less dramatic dimming
         const flicker = Math.sin((now / 1000) * particle.flickerSpeed + particle.flickerOffset);
         const flickerOpacity = particle.opacity * (0.7 + flicker * 0.3);
 
@@ -173,8 +207,8 @@ export default function SignupPage() {
 
   return (
     <div style={s.page}>
-      {/* Rising dots — canvas, behind everything, gradient colors */}
-      <AscendingDots particleCount={165} />
+      {/* Floating dots background */}
+      <FloatingDots particleCount={165} />
 
       {/* Card — dead center, solid background, nothing shows through */}
       <div style={s.container}>
