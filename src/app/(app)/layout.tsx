@@ -67,7 +67,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     );
   }
 
-  if (!session || !hasSubscription) return null;
+  // Allow access if they have subscription OR are whitelisted OR have the sessionStorage flag
+  const wasWhitelisted = typeof window !== 'undefined' && sessionStorage.getItem('wasWhitelisted') === 'true';
+  if (!session || (!hasSubscription && !isHardcodedWhitelisted && !wasWhitelisted)) return null;
 
   return (
     <GoalProvider>
