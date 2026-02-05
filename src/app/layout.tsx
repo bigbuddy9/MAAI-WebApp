@@ -4,8 +4,12 @@ import { AuthProvider } from '@/contexts/AuthContext';
 import { SubscriptionProvider } from '@/contexts/SubscriptionContext';
 
 export const metadata: Metadata = {
-  title: 'myAccountable.ai',
+  title: 'MyAccountableAI',
   description: 'Track your goals, build habits, stay accountable.',
+  icons: {
+    icon: '/favicon.png',
+    apple: '/favicon.png',
+  },
 };
 
 export default function RootLayout({
