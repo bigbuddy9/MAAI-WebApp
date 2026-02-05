@@ -1,6 +1,8 @@
 'use client';
 
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { useAuth } from '@/contexts/AuthContext';
 import { FloatingDots } from '@/components/ui/FloatingDots';
 
@@ -25,9 +27,17 @@ function SettingsRow({ label, onPress, isLogout }: SettingsRowProps) {
   );
 }
 
+const NAV_ITEMS = [
+  { label: 'Tracker', href: '/tracker' },
+  { label: 'Goals', href: '/goals' },
+  { label: 'Stats', href: '/stats' },
+  { label: 'Reports', href: '/reports' },
+];
+
 export default function ProfilePage() {
   const router = useRouter();
   const { signOut } = useAuth();
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const handleLogout = () => {
     if (confirm('Are you sure you want to logout?')) {
@@ -44,6 +54,48 @@ export default function ProfilePage() {
     <div style={s.pageWrapper}>
       {/* Full screen floating dots background */}
       <FloatingDots particleCount={150} side="full" />
+
+      {/* Menu button - top right */}
+      <button
+        style={s.menuButton}
+        onClick={() => setMenuOpen(true)}
+        title="Menu"
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" strokeWidth={2} strokeLinecap="round" />
+        </svg>
+      </button>
+
+      {/* Navigation Menu Overlay */}
+      {menuOpen && (
+        <div style={s.menuOverlay} onClick={() => setMenuOpen(false)}>
+          <div style={s.menuPopover} onClick={e => e.stopPropagation()}>
+            <div style={s.menuLogo}>
+              <Image src="/logo-icon.png" alt="MyAccountableAI" width={160} height={160} style={{ width: '50%', height: 'auto' }} />
+            </div>
+            <div style={s.menuTitle}>Select Panel</div>
+            {NAV_ITEMS.map(item => (
+              <button
+                key={item.href}
+                style={s.menuOption}
+                onClick={() => {
+                  setMenuOpen(false);
+                  router.push(item.href);
+                }}
+              >
+                <span>{item.label}</span>
+              </button>
+            ))}
+            <div style={s.menuDivider} />
+            <button
+              style={{ ...s.menuOption, ...s.menuOptionActive }}
+              onClick={() => setMenuOpen(false)}
+            >
+              <span>Profile</span>
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Profile panel floating on top */}
       <div style={s.contentWrapper}>
@@ -77,6 +129,81 @@ const s: Record<string, React.CSSProperties> = {
     bottom: 0,
     backgroundColor: '#000000',
     overflow: 'hidden',
+  },
+  menuButton: {
+    position: 'absolute',
+    top: 20,
+    right: 20,
+    zIndex: 10,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 36,
+    height: 36,
+    borderRadius: 8,
+    border: '1px solid #1A1A1A',
+    background: '#0A0A0A',
+    color: '#6B6B6B',
+    cursor: 'pointer',
+  },
+  menuOverlay: {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    background: 'rgba(0, 0, 0, 0.5)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 200,
+  },
+  menuPopover: {
+    backgroundColor: '#000000',
+    border: '1px solid #1A1A1A',
+    borderRadius: 12,
+    width: 160,
+    boxShadow: '0 16px 40px rgba(0, 0, 0, 0.8)',
+    overflow: 'hidden',
+    paddingBottom: 6,
+  },
+  menuLogo: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '10px 0 4px',
+  },
+  menuTitle: {
+    fontSize: 11,
+    fontWeight: 600,
+    color: '#6B6B6B',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    marginBottom: 2,
+    padding: '4px 12px 0',
+  },
+  menuDivider: {
+    height: 1,
+    backgroundColor: '#1A1A1A',
+    margin: '3px 12px',
+  },
+  menuOption: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
+    padding: '6px 12px',
+    border: 'none',
+    background: 'transparent',
+    borderRadius: 0,
+    color: '#FFFFFF',
+    fontSize: 15,
+    fontWeight: 500,
+    cursor: 'pointer',
+    boxSizing: 'border-box',
+  },
+  menuOptionActive: {
+    background: 'linear-gradient(135deg, rgba(124, 58, 237, 0.2), rgba(56, 189, 248, 0.2))',
   },
   contentWrapper: {
     position: 'relative',
