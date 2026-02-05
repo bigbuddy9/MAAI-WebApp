@@ -4,8 +4,8 @@ import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useGoals } from '@/contexts/GoalContext';
 import { useTasks } from '@/contexts/TaskContext';
 import { useStats } from '@/contexts/StatsContext';
-import { getGoalColor } from '@maai/shared';
-import * as calculations from '@maai/shared';
+import { getGoalColor } from '@/shared';
+import * as calculations from '@/shared';
 
 interface GoalDetailViewProps {
   goalId: number;

@@ -4,7 +4,7 @@ import { createContext, useContext, useState, useEffect, useCallback, useMemo, R
 import { useAuth } from './AuthContext';
 import { useGoals } from './GoalContext';
 import { db } from '@/lib/storage';
-import type { SupabaseTask } from '@maai/shared';
+import type { SupabaseTask } from '@/shared';
 
 export interface Task {
   id: number;

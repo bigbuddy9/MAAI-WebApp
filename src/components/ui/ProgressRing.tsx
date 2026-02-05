@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { getTierByPercentage } from '@maai/shared';
+import { getTierByPercentage } from '@/shared';
 
 interface ProgressRingProps {
   percent: number;

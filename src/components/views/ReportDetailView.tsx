@@ -4,8 +4,8 @@ import { useMemo, useId } from 'react';
 import { useStats } from '@/contexts/StatsContext';
 import { useTasks, Task } from '@/contexts/TaskContext';
 import { useGoals } from '@/contexts/GoalContext';
-import * as calc from '@maai/shared';
-import { getTierByPercentage, colors, spacing, borderRadius } from '@maai/shared';
+import * as calc from '@/shared';
+import { getTierByPercentage, colors, spacing, borderRadius } from '@/shared';
 
 type ReportType = 'daily' | 'weekly' | 'monthly';
 

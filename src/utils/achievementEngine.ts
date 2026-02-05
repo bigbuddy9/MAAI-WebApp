@@ -8,7 +8,7 @@ import {
   HighlightDefinition,
   ReportType,
 } from './achievementDefinitions';
-import type { TaskCompletion, DailyScore, Trend } from '@maai/shared';
+import type { TaskCompletion, DailyScore, Trend } from '@/shared';
 
 // Stats shape matching what StatsContext exposes
 export interface StatsValues {

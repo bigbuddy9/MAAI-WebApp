@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useGoals } from '@/contexts/GoalContext';
-import { getGoalColor } from '@maai/shared';
+import { getGoalColor } from '@/shared';
 
 interface AddGoalViewProps {
   onBack?: () => void;

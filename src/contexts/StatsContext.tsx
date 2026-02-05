@@ -13,7 +13,7 @@ import React, {
 import { useTasks, Task } from './TaskContext';
 import { useGoals } from './GoalContext';
 import { useAuth } from './AuthContext';
-import * as calculations from '@maai/shared';
+import * as calculations from '@/shared';
 import { db } from '@/lib/storage';
 
 interface StatsContextType {

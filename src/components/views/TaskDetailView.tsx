@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo, useRef, useId, useCallback } from 'react'
 import { useTasks } from '@/contexts/TaskContext';
 import { useGoals } from '@/contexts/GoalContext';
 import { useStats } from '@/contexts/StatsContext';
-import { getGoalColor } from '@maai/shared';
+import { getGoalColor } from '@/shared';
 
 type TabMode = 'edit' | 'history';
 type TaskType = 'checkbox' | 'number';

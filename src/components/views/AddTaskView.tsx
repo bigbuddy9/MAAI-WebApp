@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useTasks } from '@/contexts/TaskContext';
 import { useGoals } from '@/contexts/GoalContext';
-import { getGoalColor } from '@maai/shared';
+import { getGoalColor } from '@/shared';
 
 type TaskType = 'checkbox' | 'number';
 type Importance = 'medium' | 'high' | 'maximum';

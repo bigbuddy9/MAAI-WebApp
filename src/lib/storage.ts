@@ -1,4 +1,4 @@
-import { initSupabaseStorage } from '@maai/shared';
+import { initSupabaseStorage } from '@/shared';
 import { supabase } from './supabase';
 
 export const db = initSupabaseStorage(supabase);

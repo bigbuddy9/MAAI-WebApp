@@ -4,8 +4,8 @@ import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { useTasks, Task } from '@/contexts/TaskContext';
 import { useStats } from '@/contexts/StatsContext';
 import { SwipeableView } from '@/components/ui/SwipeableView';
-import * as calculations from '@maai/shared';
-import { getGoalColor } from '@maai/shared';
+import * as calculations from '@/shared';
+import { getGoalColor } from '@/shared';
 
 type ViewMode = 'daily' | 'weekly' | 'monthly';
 

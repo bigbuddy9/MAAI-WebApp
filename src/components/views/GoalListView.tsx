@@ -4,7 +4,7 @@ import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { useGoals } from '@/contexts/GoalContext';
 import { useTasks } from '@/contexts/TaskContext';
 import { useStats } from '@/contexts/StatsContext';
-import { getGoalColor, getTierByPercentage } from '@maai/shared';
+import { getGoalColor, getTierByPercentage } from '@/shared';
 
 // Theme values (matching mobile exactly)
 const colors = {

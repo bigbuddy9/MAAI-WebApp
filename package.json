@@ -8,7 +8,6 @@
     "start": "next start"
   },
   "dependencies": {
-    "@maai/shared": "*",
     "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.93.3",
     "next": "15.5.7",

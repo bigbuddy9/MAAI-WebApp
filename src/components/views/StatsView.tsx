@@ -5,8 +5,8 @@ import { useStats } from '@/contexts/StatsContext';
 import { useTasks, Task } from '@/contexts/TaskContext';
 import { useGoals } from '@/contexts/GoalContext';
 import { SwipeableView } from '@/components/ui/SwipeableView';
-import * as calculations from '@maai/shared';
-import { getGoalColor, getTierByPercentage } from '@maai/shared';
+import * as calculations from '@/shared';
+import { getGoalColor, getTierByPercentage } from '@/shared';
 
 // ========================================
 // CONSTANTS (matching mobile exactly)

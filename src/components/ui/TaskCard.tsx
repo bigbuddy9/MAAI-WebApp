@@ -1,6 +1,6 @@
 'use client';
 
-import { getGoalColor } from '@maai/shared';
+import { getGoalColor } from '@/shared';
 import styles from './TaskCard.module.css';
 
 interface TaskCardProps {

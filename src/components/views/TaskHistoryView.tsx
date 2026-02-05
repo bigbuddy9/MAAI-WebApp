@@ -3,7 +3,7 @@
 import { useMemo, useId } from 'react';
 import { useTasks } from '@/contexts/TaskContext';
 import { useStats } from '@/contexts/StatsContext';
-import { getGoalColor } from '@maai/shared';
+import { getGoalColor } from '@/shared';
 
 // Theme constants (matching mobile exactly)
 const colors = {

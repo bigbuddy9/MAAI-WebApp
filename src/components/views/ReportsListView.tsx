@@ -3,8 +3,8 @@
 import { useState, useMemo } from 'react';
 import { useStats } from '@/contexts/StatsContext';
 import { useTasks } from '@/contexts/TaskContext';
-import * as calculations from '@maai/shared';
-import { getTierByPercentage, colors, spacing, borderRadius } from '@maai/shared';
+import * as calculations from '@/shared';
+import { getTierByPercentage, colors, spacing, borderRadius } from '@/shared';
 
 type ReportType = 'daily' | 'weekly' | 'monthly';
 

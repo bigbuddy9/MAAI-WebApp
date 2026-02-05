@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, ReactNode } from 'react';
 import { useAuth } from './AuthContext';
 import { db } from '@/lib/storage';
-import type { SupabaseGoal, SupabaseMilestone } from '@maai/shared';
+import type { SupabaseGoal, SupabaseMilestone } from '@/shared';
 
 export interface Milestone {
   id: number;
