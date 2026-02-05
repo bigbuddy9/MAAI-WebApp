@@ -5,6 +5,9 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 
+// Force dynamic rendering to avoid static prerender issues with useRouter
+export const dynamic = 'force-dynamic';
+
 // Exact design tokens from myaccountable.ai
 const t = {
   bg: '#000000',

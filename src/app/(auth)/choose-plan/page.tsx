@@ -4,6 +4,9 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 
+// Force dynamic rendering to avoid static prerender issues
+export const dynamic = 'force-dynamic';
+
 const t = {
   bg: '#000000',
   cyan: '#00FFFF',

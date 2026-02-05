@@ -5,6 +5,9 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 
+// Force dynamic rendering to avoid static prerender issues
+export const dynamic = 'force-dynamic';
+
 const t = {
   bg: '#000000',
   fg: '#ffffff',
