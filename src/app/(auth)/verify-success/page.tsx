@@ -199,16 +199,8 @@ function DemoTaskCard({ task, animateIn, delay }: { task: typeof DEMO_TASKS[0]; 
   );
 }
 
-// Plan Selection Modal
-function PlanSelectionModal({
-  onSelectPlan,
-  isRedirecting,
-  selectedPlan,
-}: {
-  onSelectPlan: (plan: 'monthly' | 'yearly') => void;
-  isRedirecting: boolean;
-  selectedPlan: string | null;
-}) {
+// Redirecting Overlay
+function RedirectingOverlay() {
   return (
     <div style={{
       position: 'fixed',
@@ -220,132 +212,27 @@ function PlanSelectionModal({
       zIndex: 1000,
       padding: 24,
     }}>
-      <div className="modal-border-wrap" style={{
-        width: '100%',
-        maxWidth: 420,
-        borderRadius: t.radius2xl + 1,
-        padding: 1,
-        background: 'linear-gradient(135deg, #C878FF, #7850DC, #00C8FF, #7850DC, #C878FF)',
-        backgroundSize: '200% 200%',
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: 16,
       }}>
         <div style={{
-          width: '100%',
-          backgroundColor: t.bgCard,
-          borderRadius: t.radius2xl,
-          padding: '32px 24px',
+          width: 32,
+          height: 32,
+          border: '3px solid #333',
+          borderTop: `3px solid ${t.cyan}`,
+          borderRadius: '50%',
+          animation: 'spin 0.8s linear infinite',
+        }} />
+        <p style={{
+          fontSize: 16,
+          color: t.fg,
+          fontWeight: 500,
         }}>
-          <h2 style={{
-            fontSize: 24,
-            fontWeight: 700,
-            color: t.fg,
-            margin: '0 0 8px',
-            textAlign: 'center',
-          }}>
-            Start Your Free Trial
-          </h2>
-          <p style={{
-            fontSize: 14,
-            color: t.fgSecondary,
-            margin: '0 0 24px',
-            textAlign: 'center',
-          }}>
-            7 days free, then choose your plan. Cancel anytime.
-          </p>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            {/* Monthly Option */}
-            <button
-              onClick={() => onSelectPlan('monthly')}
-              disabled={isRedirecting}
-              style={{
-                width: '100%',
-                padding: '18px 20px',
-                backgroundColor: 'rgba(255,255,255,0.02)',
-                border: `2px solid ${selectedPlan === 'monthly' ? t.cyan : t.border}`,
-                borderRadius: t.radiusLg,
-                cursor: isRedirecting ? 'not-allowed' : 'pointer',
-                textAlign: 'left',
-                transition: 'border-color 0.2s, opacity 0.2s',
-                opacity: isRedirecting && selectedPlan !== 'monthly' ? 0.5 : 1,
-                position: 'relative',
-                fontFamily: t.font,
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
-                <span style={{ fontSize: 16, fontWeight: 600, color: t.fg }}>Monthly</span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
-                <span style={{ fontSize: 26, fontWeight: 700, color: t.fg }}>$9.99</span>
-                <span style={{ fontSize: 14, color: t.fgSecondary }}>/month</span>
-              </div>
-              <p style={{ fontSize: 13, color: t.fgSecondary, margin: '6px 0 0' }}>Billed monthly</p>
-              {selectedPlan === 'monthly' && isRedirecting && (
-                <div style={{
-                  position: 'absolute',
-                  right: 16,
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  width: 20, height: 20,
-                  border: '2px solid rgba(255,255,255,0.2)',
-                  borderTop: `2px solid ${t.cyan}`,
-                  borderRadius: '50%',
-                  animation: 'spin 0.6s linear infinite',
-                }} />
-              )}
-            </button>
-
-            {/* Yearly Option */}
-            <button
-              onClick={() => onSelectPlan('yearly')}
-              disabled={isRedirecting}
-              style={{
-                width: '100%',
-                padding: '18px 20px',
-                backgroundColor: 'rgba(255,255,255,0.02)',
-                border: `2px solid ${selectedPlan === 'yearly' ? t.cyan : t.border}`,
-                borderRadius: t.radiusLg,
-                cursor: isRedirecting ? 'not-allowed' : 'pointer',
-                textAlign: 'left',
-                transition: 'border-color 0.2s, opacity 0.2s',
-                opacity: isRedirecting && selectedPlan !== 'yearly' ? 0.5 : 1,
-                position: 'relative',
-                fontFamily: t.font,
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
-                <span style={{ fontSize: 16, fontWeight: 600, color: t.fg }}>Yearly</span>
-                <span style={{
-                  fontSize: 11,
-                  fontWeight: 600,
-                  color: t.bg,
-                  backgroundColor: t.cyan,
-                  padding: '2px 8px',
-                  borderRadius: 4,
-                }}>
-                  Save 17%
-                </span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
-                <span style={{ fontSize: 26, fontWeight: 700, color: t.fg }}>$99.99</span>
-                <span style={{ fontSize: 14, color: t.fgSecondary }}>/year</span>
-              </div>
-              <p style={{ fontSize: 13, color: t.fgSecondary, margin: '6px 0 0' }}>$8.33/month, billed annually</p>
-              {selectedPlan === 'yearly' && isRedirecting && (
-                <div style={{
-                  position: 'absolute',
-                  right: 16,
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  width: 20, height: 20,
-                  border: '2px solid rgba(255,255,255,0.2)',
-                  borderTop: `2px solid ${t.cyan}`,
-                  borderRadius: '50%',
-                  animation: 'spin 0.6s linear infinite',
-                }} />
-              )}
-            </button>
-          </div>
-        </div>
+          Setting up your free trial...
+        </p>
       </div>
     </div>
   );
@@ -355,20 +242,20 @@ function PlanSelectionModal({
 export default function VerifySuccessPage() {
   const { session, isLoading } = useAuth();
   const router = useRouter();
-  const [showModal, setShowModal] = useState(false);
   const [animateTasks, setAnimateTasks] = useState(false);
   const [isRedirecting, setIsRedirecting] = useState(false);
-  const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
-  const hasShownDemo = useRef(false);
+  const hasStarted = useRef(false);
 
-  // Start animation sequence when session is ready
+  // Start animation sequence and redirect to checkout
   useEffect(() => {
-    if (!isLoading && session && !hasShownDemo.current) {
-      hasShownDemo.current = true;
+    if (!isLoading && session && !hasStarted.current) {
+      hasStarted.current = true;
       // Start task animations immediately
       setAnimateTasks(true);
-      // Show modal after demo plays (3 seconds)
-      const timer = setTimeout(() => setShowModal(true), 3000);
+      // Redirect to Stripe checkout after demo plays (3 seconds)
+      const timer = setTimeout(() => {
+        redirectToCheckout();
+      }, 3000);
       return () => clearTimeout(timer);
     }
   }, [session, isLoading]);
@@ -380,9 +267,8 @@ export default function VerifySuccessPage() {
     }
   }, [session, isLoading, router]);
 
-  const handleSelectPlan = async (plan: 'monthly' | 'yearly') => {
+  const redirectToCheckout = async () => {
     if (!session || isRedirecting) return;
-    setSelectedPlan(plan);
     setIsRedirecting(true);
 
     try {
@@ -392,19 +278,17 @@ export default function VerifySuccessPage() {
         body: JSON.stringify({
           userId: session.user.id,
           email: session.user.email,
-          plan,
         }),
       });
       const data = await response.json();
       if (data.url) {
         window.location.href = data.url;
       } else {
-        setIsRedirecting(false);
-        setSelectedPlan(null);
+        // If checkout fails, redirect to tracker
+        router.replace('/tracker');
       }
     } catch {
-      setIsRedirecting(false);
-      setSelectedPlan(null);
+      router.replace('/tracker');
     }
   };
 
@@ -461,25 +345,11 @@ export default function VerifySuccessPage() {
         </div>
       </div>
 
-      {/* Plan Selection Modal */}
-      {showModal && (
-        <PlanSelectionModal
-          onSelectPlan={handleSelectPlan}
-          isRedirecting={isRedirecting}
-          selectedPlan={selectedPlan}
-        />
-      )}
+      {/* Redirecting Overlay */}
+      {isRedirecting && <RedirectingOverlay />}
 
       <style>{`
         @keyframes spin { to { transform: rotate(360deg); } }
-        @keyframes borderRotate {
-          0% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
-        }
-        .modal-border-wrap {
-          animation: borderRotate 4s ease-in-out infinite;
-        }
         * { -webkit-font-smoothing: antialiased; }
       `}</style>
     </div>
