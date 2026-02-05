@@ -17,13 +17,17 @@ export async function GET(request: Request) {
   }
 
   try {
-    // Check whitelist by email
+    // Check whitelist by email (use maybeSingle to not throw when not found)
     if (email) {
-      const { data: whitelist } = await supabase
+      const { data: whitelist, error: whitelistError } = await supabase
         .from('subscription_whitelist')
         .select('email')
         .eq('email', email.toLowerCase())
-        .single();
+        .maybeSingle();
+
+      if (whitelistError) {
+        console.error('Whitelist check error:', whitelistError);
+      }
 
       if (whitelist) {
         return NextResponse.json({
@@ -34,12 +38,16 @@ export async function GET(request: Request) {
       }
     }
 
-    // Check subscription
-    const { data: sub } = await supabase
+    // Check subscription (use maybeSingle to not throw when not found)
+    const { data: sub, error: subError } = await supabase
       .from('subscriptions')
       .select('*')
       .eq('user_id', userId)
-      .single();
+      .maybeSingle();
+
+    if (subError) {
+      console.error('Subscription check error:', subError);
+    }
 
     if (!sub) {
       return NextResponse.json({
