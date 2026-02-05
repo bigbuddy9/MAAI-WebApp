@@ -287,15 +287,16 @@ function SignupFormContent() {
   const [focusedField, setFocusedField] = useState<string | null>(null);
   const [showCheckEmail, setShowCheckEmail] = useState(false);
   const [submittedEmail, setSubmittedEmail] = useState('');
+  const [justSignedUp, setJustSignedUp] = useState(false);
   const { signUp, session, isLoading } = useAuth();
   const router = useRouter();
 
-  // Redirect existing logged-in users to tracker
+  // Only redirect existing logged-in users (not new signups)
   useEffect(() => {
-    if (!isLoading && session) {
+    if (!isLoading && session && !justSignedUp && !showCheckEmail) {
       router.replace('/tracker');
     }
-  }, [session, isLoading, router]);
+  }, [session, isLoading, router, justSignedUp, showCheckEmail]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -307,11 +308,13 @@ function SignupFormContent() {
     }
 
     setIsSubmitting(true);
+    setJustSignedUp(true); // Mark as new signup before calling signUp
     const { error } = await signUp(email, password);
 
     if (error) {
       setError(error);
       setIsSubmitting(false);
+      setJustSignedUp(false);
     } else {
       // Show check email screen
       setSubmittedEmail(email);
