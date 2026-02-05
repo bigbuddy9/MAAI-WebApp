@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSubscription } from '@/contexts/SubscriptionContext';
@@ -16,7 +16,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const slots = useBreakpoint();
-  const redirectingToStripe = useRef(false);
 
   useEffect(() => {
     if (!isLoading && !session) {
@@ -24,27 +23,12 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     }
   }, [session, isLoading, router]);
 
-  // Redirect to Stripe checkout if no active subscription
+  // Redirect to plan picker if no active subscription
   useEffect(() => {
-    if (!isLoading && !subLoading && session && !hasSubscription && !redirectingToStripe.current) {
-      redirectingToStripe.current = true;
-      // Redirect to Stripe checkout (default to monthly plan)
-      fetch('/api/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: session.user.id, email: session.user.email, plan: 'monthly' }),
-      })
-        .then(res => res.json())
-        .then(data => {
-          if (data.url) {
-            window.location.href = data.url;
-          }
-        })
-        .catch(() => {
-          redirectingToStripe.current = false;
-        });
+    if (!isLoading && !subLoading && session && !hasSubscription) {
+      router.replace('/choose-plan');
     }
-  }, [isLoading, subLoading, session, hasSubscription]);
+  }, [isLoading, subLoading, session, hasSubscription, router]);
 
   if (isLoading || subLoading) {
     return (
