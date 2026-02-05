@@ -6,10 +6,6 @@ import { SubscriptionProvider } from '@/contexts/SubscriptionContext';
 export const metadata: Metadata = {
   title: 'MyAccountableAI',
   description: 'Track your goals, build habits, stay accountable.',
-  icons: {
-    icon: '/favicon.png',
-    apple: '/favicon.png',
-  },
 };
 
 export default function RootLayout({
