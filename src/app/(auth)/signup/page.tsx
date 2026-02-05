@@ -50,9 +50,9 @@ function FloatingDots({ particleCount = 165 }: { particleCount?: number }) {
       const floatAngle = Math.random() * Math.PI * 2;
       const floatSpeed = 0.01 + Math.random() * 0.02;
 
-      // Initial upward velocity (with slight horizontal variation)
-      const ascendSpeed = 0.08 + Math.random() * 0.06;
-      const horizontalDrift = (Math.random() - 0.5) * 0.02;
+      // Initial upward velocity - fast ascending like main website
+      const ascendSpeed = 0.15 + Math.random() * 0.15;
+      const horizontalDrift = (Math.random() - 0.5) * 0.03;
 
       initialParticles.push({
         id: i,
