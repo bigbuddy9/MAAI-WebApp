@@ -28,11 +28,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!isLoading && !subLoading && session && !hasSubscription && !redirectingToStripe.current) {
       redirectingToStripe.current = true;
-      // Redirect to Stripe checkout
+      // Redirect to Stripe checkout (default to monthly plan)
       fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: session.user.id, email: session.user.email }),
+        body: JSON.stringify({ userId: session.user.id, email: session.user.email, plan: 'monthly' }),
       })
         .then(res => res.json())
         .then(data => {

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -181,27 +181,31 @@ export default function SignupPage() {
   const [focusedField, setFocusedField] = useState<string | null>(null);
   const { signUp, session, isLoading } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [isNewSignup, setIsNewSignup] = useState(false);
+
+  // Get plan from URL (e.g., ?plan=yearly)
+  const plan = searchParams.get('plan') || 'monthly';
 
   // Redirect existing logged-in users to tracker, new signups to Stripe
   useEffect(() => {
     if (!isLoading && session) {
       if (isNewSignup) {
-        // New signup - redirect to Stripe checkout
-        redirectToStripe(session.user.id, session.user.email!);
+        // New signup - redirect to Stripe checkout with selected plan
+        redirectToStripe(session.user.id, session.user.email!, plan);
       } else {
         // Existing user - go to tracker
         router.replace('/tracker');
       }
     }
-  }, [session, isLoading, router, isNewSignup]);
+  }, [session, isLoading, router, isNewSignup, plan]);
 
-  const redirectToStripe = async (userId: string, userEmail: string) => {
+  const redirectToStripe = async (userId: string, userEmail: string, selectedPlan: string) => {
     try {
       const response = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, email: userEmail }),
+        body: JSON.stringify({ userId, email: userEmail, plan: selectedPlan }),
       });
       const data = await response.json();
       if (data.url) {

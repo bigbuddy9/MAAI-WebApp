@@ -1,13 +1,29 @@
 import { NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
 
+// Map plan names to Stripe price IDs
+const PRICE_IDS: Record<string, string | undefined> = {
+  monthly: process.env.STRIPE_PRICE_ID_MONTHLY || process.env.STRIPE_PRICE_ID,
+  yearly: process.env.STRIPE_PRICE_ID_YEARLY,
+};
+
 export async function POST(request: Request) {
   try {
-    const { userId, email } = await request.json();
+    const { userId, email, plan } = await request.json();
 
     if (!userId || !email) {
       return NextResponse.json(
         { error: 'Missing userId or email' },
+        { status: 400 }
+      );
+    }
+
+    // Get the price ID for the selected plan (default to monthly)
+    const priceId = PRICE_IDS[plan] || PRICE_IDS.monthly;
+
+    if (!priceId) {
+      return NextResponse.json(
+        { error: 'No price configured for this plan' },
         { status: 400 }
       );
     }
@@ -37,7 +53,7 @@ export async function POST(request: Request) {
       payment_method_types: ['card'],
       line_items: [
         {
-          price: process.env.STRIPE_PRICE_ID!,
+          price: priceId,
           quantity: 1,
         },
       ],
