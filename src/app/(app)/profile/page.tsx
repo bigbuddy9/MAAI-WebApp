@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
+import { FloatingDotsSides } from '@/components/ui/FloatingDots';
 
 interface SettingsRowProps {
   label: string;
@@ -40,29 +41,44 @@ export default function ProfilePage() {
   };
 
   return (
-    <div style={s.container}>
-      <div style={s.settingsCard}>
-        <SettingsRow label="About" onPress={() => router.push('/profile/about')} />
-        <SettingsRow label="Settings" onPress={() => router.push('/profile/settings')} />
-        <SettingsRow label="Subscription" onPress={() => router.push('/profile/subscription')} />
-        <SettingsRow label="Account Info" onPress={() => router.push('/profile/account')} />
-        <SettingsRow label="Achievements" onPress={() => router.push('/profile/achievements')} />
-        <SettingsRow label="Send Feedback" onPress={handleSendFeedback} />
-      </div>
+    <div style={s.pageWrapper}>
+      {/* Floating dots on left and right */}
+      <FloatingDotsSides particleCount={60} />
 
-      <div style={s.settingsCard}>
-        <SettingsRow label="Logout" onPress={handleLogout} isLogout />
-      </div>
+      <div style={s.container}>
+        <div style={s.settingsCard}>
+          <SettingsRow label="About" onPress={() => router.push('/profile/about')} />
+          <SettingsRow label="Settings" onPress={() => router.push('/profile/settings')} />
+          <SettingsRow label="Subscription" onPress={() => router.push('/profile/subscription')} />
+          <SettingsRow label="Account Info" onPress={() => router.push('/profile/account')} />
+          <SettingsRow label="Achievements" onPress={() => router.push('/profile/achievements')} />
+          <SettingsRow label="Send Feedback" onPress={handleSendFeedback} />
+        </div>
 
-      <p style={s.versionText}>VERSION 1.0.0</p>
+        <div style={s.settingsCard}>
+          <SettingsRow label="Logout" onPress={handleLogout} isLogout />
+        </div>
+
+        <p style={s.versionText}>VERSION 1.0.0</p>
+      </div>
     </div>
   );
 }
 
 const s: Record<string, React.CSSProperties> = {
+  pageWrapper: {
+    position: 'relative',
+    minHeight: '100%',
+    backgroundColor: '#000000',
+    overflow: 'hidden',
+  },
   container: {
+    position: 'relative',
+    zIndex: 1,
     padding: '16px',
     paddingBottom: 16,
+    maxWidth: 520,
+    margin: '0 auto',
   },
   pageTitle: {
     fontSize: 32,
