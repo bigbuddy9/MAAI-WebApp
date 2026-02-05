@@ -1,35 +1,56 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
-// Use service role key to bypass RLS for subscription/whitelist checks
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+// Check if service role key is configured
+const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+
+// Only create client if both are available
+const supabase = supabaseUrl && serviceRoleKey
+  ? createClient(supabaseUrl, serviceRoleKey)
+  : null;
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const userId = searchParams.get('userId');
   const email = searchParams.get('email');
 
+  // Check if Supabase is configured
+  if (!supabase) {
+    console.error('SUPABASE_SERVICE_ROLE_KEY is not configured!');
+    return NextResponse.json({
+      active: false,
+      status: 'none',
+      whitelisted: false,
+      error: 'Server configuration error',
+    });
+  }
+
   if (!userId) {
     return NextResponse.json({ error: 'Missing userId' }, { status: 400 });
   }
 
+  console.log('Checking subscription for:', { userId, email });
+
   try {
     // Check whitelist by email (use maybeSingle to not throw when not found)
     if (email) {
+      console.log('Checking whitelist for email:', email.toLowerCase());
+
       const { data: whitelist, error: whitelistError } = await supabase
         .from('subscription_whitelist')
         .select('email')
         .eq('email', email.toLowerCase())
         .maybeSingle();
 
+      console.log('Whitelist result:', { whitelist, whitelistError });
+
       if (whitelistError) {
         console.error('Whitelist check error:', whitelistError);
       }
 
       if (whitelist) {
+        console.log('User is whitelisted!');
         return NextResponse.json({
           active: true,
           status: 'whitelisted',

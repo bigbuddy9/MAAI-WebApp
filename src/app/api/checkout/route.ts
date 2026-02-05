@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
 
 // Yearly subscription price ID
-const PRICE_ID = process.env.STRIPE_PRICE_ID_YEARLY;
+const PRICE_ID = process.env.STRIPE_PRICE_ID_YEARLY || process.env.STRIPE_PRICE_ID;
 
 export async function POST(request: Request) {
   try {
