@@ -54,6 +54,13 @@ export default function VerifySuccessPage() {
     console.log('Session user:', { userId, userEmail });
     setStatusText(`Checking subscription for ${userEmail}...`);
 
+    // Hardcoded whitelist as failsafe
+    const hardcodedWhitelist = [
+      'jessebarbato788@gmail.com',
+      'brunnno2002@gmail.com',
+      'jono.kazzaa@gmail.com',
+    ];
+
     // If no email, we can't check whitelist - go to checkout
     if (!userEmail) {
       console.log('No email in session, going to checkout');
@@ -63,8 +70,17 @@ export default function VerifySuccessPage() {
       return;
     }
 
+    // Check hardcoded whitelist first
+    if (hardcodedWhitelist.includes(userEmail.toLowerCase())) {
+      console.log('User in hardcoded whitelist! Redirecting to tracker');
+      setStatusText('Welcome! Redirecting...');
+      sessionStorage.setItem('wasWhitelisted', 'true');
+      router.replace('/tracker');
+      return;
+    }
+
+    // Otherwise check the API
     try {
-      // Use debug endpoint which we KNOW works
       const url = `/api/debug-whitelist?email=${encodeURIComponent(userEmail)}`;
       console.log('Fetching whitelist check:', url);
 
@@ -73,17 +89,14 @@ export default function VerifySuccessPage() {
 
       console.log('Whitelist check response:', data);
 
-      // Check multiple possible response formats
       const isWhitelisted = data.isWhitelisted || data.found || (data.whitelistRows && data.whitelistRows.length > 0);
 
       if (isWhitelisted) {
-        // User is whitelisted - go to app
         console.log('User is whitelisted! Redirecting to tracker');
         setStatusText('Welcome! Redirecting...');
         sessionStorage.setItem('wasWhitelisted', 'true');
         router.replace('/tracker');
       } else {
-        // Not whitelisted - redirect to Stripe checkout
         console.log('User not whitelisted, going to checkout');
         setStatusText('Setting up your free trial...');
         setStatus('redirecting');
