@@ -64,29 +64,33 @@ export default function VerifySuccessPage() {
     }
 
     try {
-      const url = `/api/subscription?userId=${userId}&email=${encodeURIComponent(userEmail)}`;
-      console.log('Fetching:', url);
+      // Use debug endpoint which we KNOW works
+      const url = `/api/debug-whitelist?email=${encodeURIComponent(userEmail)}`;
+      console.log('Fetching whitelist check:', url);
 
       const res = await fetch(url);
       const data = await res.json();
 
-      console.log('Subscription API response:', data);
+      console.log('Whitelist check response:', data);
 
-      if (data.active === true) {
-        // User is whitelisted or has subscription - go to app
-        console.log('User is active, redirecting to tracker');
+      // Check multiple possible response formats
+      const isWhitelisted = data.isWhitelisted || data.found || (data.whitelistRows && data.whitelistRows.length > 0);
+
+      if (isWhitelisted) {
+        // User is whitelisted - go to app
+        console.log('User is whitelisted! Redirecting to tracker');
         setStatusText('Welcome! Redirecting...');
         sessionStorage.setItem('wasWhitelisted', 'true');
         router.replace('/tracker');
       } else {
-        // No subscription - redirect to Stripe checkout
-        console.log('User not active, going to checkout');
+        // Not whitelisted - redirect to Stripe checkout
+        console.log('User not whitelisted, going to checkout');
         setStatusText('Setting up your free trial...');
         setStatus('redirecting');
         redirectToCheckout();
       }
     } catch (err) {
-      console.error('Subscription check failed:', err);
+      console.error('Whitelist check failed:', err);
       setStatusText('Setting up your free trial...');
       setStatus('redirecting');
       redirectToCheckout();
