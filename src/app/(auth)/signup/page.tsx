@@ -181,12 +181,39 @@ export default function SignupPage() {
   const [focusedField, setFocusedField] = useState<string | null>(null);
   const { signUp, session, isLoading } = useAuth();
   const router = useRouter();
+  const [isNewSignup, setIsNewSignup] = useState(false);
 
+  // Redirect existing logged-in users to tracker, new signups to Stripe
   useEffect(() => {
     if (!isLoading && session) {
+      if (isNewSignup) {
+        // New signup - redirect to Stripe checkout
+        redirectToStripe(session.user.id, session.user.email!);
+      } else {
+        // Existing user - go to tracker
+        router.replace('/tracker');
+      }
+    }
+  }, [session, isLoading, router, isNewSignup]);
+
+  const redirectToStripe = async (userId: string, userEmail: string) => {
+    try {
+      const response = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, email: userEmail }),
+      });
+      const data = await response.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        // Fallback to tracker if checkout fails
+        router.replace('/tracker');
+      }
+    } catch {
       router.replace('/tracker');
     }
-  }, [session, isLoading, router]);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -198,10 +225,12 @@ export default function SignupPage() {
     }
 
     setIsSubmitting(true);
+    setIsNewSignup(true); // Mark as new signup before calling signUp
     const { error } = await signUp(email, password);
     if (error) {
       setError(error);
       setIsSubmitting(false);
+      setIsNewSignup(false);
     }
   };
 

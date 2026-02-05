@@ -51,7 +51,7 @@ export async function POST(request: Request) {
         supabase_user_id: userId,
       },
       success_url: `${origin}/tracker?subscription=success`,
-      cancel_url: `${origin}/subscribe?canceled=true`,
+      cancel_url: `${origin}/tracker?subscription=canceled`,
     });
 
     return NextResponse.json({ url: session.url });
