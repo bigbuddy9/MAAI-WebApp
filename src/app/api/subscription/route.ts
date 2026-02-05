@@ -37,20 +37,20 @@ export async function GET(request: Request) {
     if (email) {
       console.log('Checking whitelist for email:', email.toLowerCase());
 
-      const { data: whitelist, error: whitelistError } = await supabase
+      const { data: whitelistRows, error: whitelistError } = await supabase
         .from('subscription_whitelist')
         .select('email')
         .eq('email', email.toLowerCase())
-        .limit(1)
-        .single();
+        .limit(1);
 
-      console.log('Whitelist result:', { whitelist, whitelistError });
+      console.log('Whitelist result:', { whitelistRows, whitelistError });
 
       if (whitelistError) {
         console.error('Whitelist check error:', whitelistError);
       }
 
-      if (whitelist) {
+      // Check if any rows were returned (user is in whitelist)
+      if (whitelistRows && whitelistRows.length > 0) {
         console.log('User is whitelisted!');
         return NextResponse.json({
           active: true,
