@@ -33,11 +33,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signUp = useCallback(async (email: string, password: string, displayName?: string) => {
+    // Get the origin for the email redirect URL
+    const origin = typeof window !== 'undefined' ? window.location.origin : '';
+
     const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
         data: { display_name: displayName || email.split('@')[0] },
+        emailRedirectTo: `${origin}/verify-success`,
       },
     });
     return { error: error?.message ?? null };
