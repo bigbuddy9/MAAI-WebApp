@@ -48,30 +48,45 @@ export default function VerifySuccessPage() {
   const checkSubscriptionAndRedirect = async () => {
     if (!session) return;
 
-    setStatusText('Checking subscription...');
+    const userEmail = session.user.email;
+    const userId = session.user.id;
+
+    console.log('Session user:', { userId, userEmail });
+    setStatusText(`Checking subscription for ${userEmail}...`);
+
+    // If no email, we can't check whitelist - go to checkout
+    if (!userEmail) {
+      console.log('No email in session, going to checkout');
+      setStatusText('Setting up your free trial...');
+      setStatus('redirecting');
+      redirectToCheckout();
+      return;
+    }
 
     try {
-      const res = await fetch(
-        `/api/subscription?userId=${session.user.id}&email=${encodeURIComponent(session.user.email || '')}`
-      );
+      const url = `/api/subscription?userId=${userId}&email=${encodeURIComponent(userEmail)}`;
+      console.log('Fetching:', url);
+
+      const res = await fetch(url);
       const data = await res.json();
 
-      console.log('Subscription check result:', data);
+      console.log('Subscription API response:', data);
 
-      if (data.active) {
+      if (data.active === true) {
         // User is whitelisted or has subscription - go to app
+        console.log('User is active, redirecting to tracker');
         setStatusText('Welcome! Redirecting...');
         sessionStorage.setItem('wasWhitelisted', 'true');
         router.replace('/tracker');
       } else {
         // No subscription - redirect to Stripe checkout
+        console.log('User not active, going to checkout');
         setStatusText('Setting up your free trial...');
         setStatus('redirecting');
         redirectToCheckout();
       }
     } catch (err) {
       console.error('Subscription check failed:', err);
-      // On error, try checkout anyway
       setStatusText('Setting up your free trial...');
       setStatus('redirecting');
       redirectToCheckout();

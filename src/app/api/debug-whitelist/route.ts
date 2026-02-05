@@ -8,41 +8,31 @@ export async function GET(request: Request) {
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 
-  // Check if env vars are set
-  if (!serviceRoleKey) {
+  if (!serviceRoleKey || !supabaseUrl) {
     return NextResponse.json({
-      error: 'SUPABASE_SERVICE_ROLE_KEY is not set',
+      error: 'Missing env vars',
+      hasKey: !!serviceRoleKey,
       hasUrl: !!supabaseUrl,
-    });
-  }
-
-  if (!supabaseUrl) {
-    return NextResponse.json({
-      error: 'NEXT_PUBLIC_SUPABASE_URL is not set',
     });
   }
 
   const supabase = createClient(supabaseUrl, serviceRoleKey);
 
-  // Try to query the whitelist
-  const { data: whitelist, error: whitelistError } = await supabase
+  // Use the EXACT same query as subscription route
+  const { data: whitelistRows, error: whitelistError } = await supabase
     .from('subscription_whitelist')
-    .select('*')
+    .select('email')
     .eq('email', email.toLowerCase())
-    .maybeSingle();
+    .limit(1);
 
-  // Also get all entries in the table for debugging
-  const { data: allEntries, error: allError } = await supabase
-    .from('subscription_whitelist')
-    .select('*');
+  const isWhitelisted = whitelistRows && whitelistRows.length > 0;
 
   return NextResponse.json({
     searchedEmail: email.toLowerCase(),
-    found: !!whitelist,
-    whitelist,
+    isWhitelisted,
+    whitelistRows,
     whitelistError,
-    allEntries,
-    allError,
+    wouldReturnActive: isWhitelisted,
     keyPreview: serviceRoleKey.substring(0, 20) + '...',
   });
 }
