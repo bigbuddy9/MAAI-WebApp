@@ -41,7 +41,8 @@ export async function GET(request: Request) {
         .from('subscription_whitelist')
         .select('email')
         .eq('email', email.toLowerCase())
-        .maybeSingle();
+        .limit(1)
+        .single();
 
       console.log('Whitelist result:', { whitelist, whitelistError });
 
