@@ -103,6 +103,12 @@ export default function DashboardLayout({ children, slots }: DashboardLayoutProp
   if (slots === 1 || !isPanelRoute) {
     const isProfileRoute = pathname.startsWith('/profile');
     const isSubPage = pathname !== '/tracker' && pathname !== '/' && pathname !== '/goals' && pathname !== '/stats' && pathname !== '/reports' && pathname !== '/profile';
+
+    // Profile page takes full control - no header, no wrapper constraints
+    if (isProfileRoute) {
+      return <>{children}</>;
+    }
+
     return (
       <main className={styles.singleColumn}>
         <div className={styles.singleHeader}>
