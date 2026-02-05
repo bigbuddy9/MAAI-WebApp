@@ -55,17 +55,6 @@ export default function ProfilePage() {
       {/* Full screen floating dots background */}
       <FloatingDots particleCount={150} side="full" />
 
-      {/* Menu button - top right */}
-      <button
-        style={s.menuButton}
-        onClick={() => setMenuOpen(true)}
-        title="Menu"
-      >
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-          <path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" strokeWidth={2} strokeLinecap="round" />
-        </svg>
-      </button>
-
       {/* Navigation Menu Overlay */}
       {menuOpen && (
         <div style={s.menuOverlay} onClick={() => setMenuOpen(false)}>
@@ -100,6 +89,17 @@ export default function ProfilePage() {
       {/* Profile panel floating on top */}
       <div style={s.contentWrapper}>
         <div style={s.profilePanel}>
+          {/* Menu button - top right of panel */}
+          <button
+            style={s.menuButton}
+            onClick={() => setMenuOpen(true)}
+            title="Menu"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" strokeWidth={2} strokeLinecap="round" />
+            </svg>
+          </button>
+
           <div style={s.settingsCard}>
             <SettingsRow label="About" onPress={() => router.push('/profile/about')} />
             <SettingsRow label="Settings" onPress={() => router.push('/profile/settings')} />
@@ -132,17 +132,17 @@ const s: Record<string, React.CSSProperties> = {
   },
   menuButton: {
     position: 'absolute',
-    top: 20,
-    right: 20,
+    top: 12,
+    right: 12,
     zIndex: 10,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    width: 36,
-    height: 36,
-    borderRadius: 8,
+    width: 32,
+    height: 32,
+    borderRadius: 6,
     border: '1px solid #1A1A1A',
-    background: '#0A0A0A',
+    background: '#0D0D0D',
     color: '#6B6B6B',
     cursor: 'pointer',
   },
@@ -217,6 +217,7 @@ const s: Record<string, React.CSSProperties> = {
     boxSizing: 'border-box',
   },
   profilePanel: {
+    position: 'relative',
     width: '100%',
     maxWidth: 420,
     backgroundColor: '#0A0A0A',
