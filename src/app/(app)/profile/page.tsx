@@ -89,16 +89,19 @@ export default function ProfilePage() {
       {/* Profile panel floating on top */}
       <div style={s.contentWrapper}>
         <div style={s.profilePanel}>
-          {/* Menu button - top right of panel */}
-          <button
-            style={s.menuButton}
-            onClick={() => setMenuOpen(true)}
-            title="Menu"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-              <path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" strokeWidth={2} strokeLinecap="round" />
-            </svg>
-          </button>
+          {/* Header with menu button */}
+          <div style={s.panelHeader}>
+            <span style={s.panelTitle}>Profile</span>
+            <button
+              style={s.menuButton}
+              onClick={() => setMenuOpen(true)}
+              title="Menu"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                <path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" strokeWidth={2} strokeLinecap="round" />
+              </svg>
+            </button>
+          </div>
 
           <div style={s.settingsCard}>
             <SettingsRow label="About" onPress={() => router.push('/profile/about')} />
@@ -130,11 +133,20 @@ const s: Record<string, React.CSSProperties> = {
     backgroundColor: '#000000',
     overflow: 'hidden',
   },
+  panelHeader: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 16,
+  },
+  panelTitle: {
+    fontSize: 13,
+    fontWeight: 600,
+    color: '#6B6B6B',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
   menuButton: {
-    position: 'absolute',
-    top: 12,
-    right: 12,
-    zIndex: 10,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -217,13 +229,12 @@ const s: Record<string, React.CSSProperties> = {
     boxSizing: 'border-box',
   },
   profilePanel: {
-    position: 'relative',
     width: '100%',
     maxWidth: 420,
     backgroundColor: '#0A0A0A',
     borderRadius: 16,
     border: '1px solid #1A1A1A',
-    padding: '24px 16px',
+    padding: '20px 16px 24px',
     boxShadow: '0 8px 32px rgba(0, 0, 0, 0.6)',
   },
   settingsCard: {
