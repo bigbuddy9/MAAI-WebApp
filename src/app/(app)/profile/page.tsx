@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import { FloatingDotsSides } from '@/components/ui/FloatingDots';
+import { FloatingDots } from '@/components/ui/FloatingDots';
 
 interface SettingsRowProps {
   label: string;
@@ -42,12 +42,12 @@ export default function ProfilePage() {
 
   return (
     <div style={s.pageWrapper}>
-      {/* Floating dots on left and right sides */}
-      <FloatingDotsSides particleCount={80} />
+      {/* Full screen floating dots background */}
+      <FloatingDots particleCount={150} side="full" />
 
-      {/* Phone-like container in the center */}
-      <div style={s.phoneContainer}>
-        <div style={s.phoneContent}>
+      {/* Profile panel floating on top */}
+      <div style={s.contentWrapper}>
+        <div style={s.profilePanel}>
           <div style={s.settingsCard}>
             <SettingsRow label="About" onPress={() => router.push('/profile/about')} />
             <SettingsRow label="Settings" onPress={() => router.push('/profile/settings')} />
@@ -70,27 +70,34 @@ export default function ProfilePage() {
 
 const s: Record<string, React.CSSProperties> = {
   pageWrapper: {
-    position: 'relative',
-    minHeight: '100vh',
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     backgroundColor: '#000000',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'flex-start',
     overflow: 'hidden',
   },
-  phoneContainer: {
+  contentWrapper: {
     position: 'relative',
     zIndex: 1,
     width: '100%',
-    maxWidth: 420,
-    minHeight: '100vh',
-    backgroundColor: '#0A0A0A',
-    borderLeft: '1px solid #1A1A1A',
-    borderRight: '1px solid #1A1A1A',
-    boxShadow: '0 0 60px rgba(0, 0, 0, 0.8)',
+    height: '100%',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+    paddingTop: 40,
+    overflowY: 'auto',
   },
-  phoneContent: {
+  profilePanel: {
+    width: '100%',
+    maxWidth: 420,
+    backgroundColor: '#0A0A0A',
+    borderRadius: 16,
+    border: '1px solid #1A1A1A',
     padding: '24px 16px',
+    marginBottom: 40,
+    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.6)',
   },
   settingsCard: {
     backgroundColor: '#0D0D0D',
