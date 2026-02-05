@@ -42,24 +42,27 @@ export default function ProfilePage() {
 
   return (
     <div style={s.pageWrapper}>
-      {/* Floating dots on left and right */}
-      <FloatingDotsSides particleCount={60} />
+      {/* Floating dots on left and right sides */}
+      <FloatingDotsSides particleCount={80} />
 
-      <div style={s.container}>
-        <div style={s.settingsCard}>
-          <SettingsRow label="About" onPress={() => router.push('/profile/about')} />
-          <SettingsRow label="Settings" onPress={() => router.push('/profile/settings')} />
-          <SettingsRow label="Subscription" onPress={() => router.push('/profile/subscription')} />
-          <SettingsRow label="Account Info" onPress={() => router.push('/profile/account')} />
-          <SettingsRow label="Achievements" onPress={() => router.push('/profile/achievements')} />
-          <SettingsRow label="Send Feedback" onPress={handleSendFeedback} />
+      {/* Phone-like container in the center */}
+      <div style={s.phoneContainer}>
+        <div style={s.phoneContent}>
+          <div style={s.settingsCard}>
+            <SettingsRow label="About" onPress={() => router.push('/profile/about')} />
+            <SettingsRow label="Settings" onPress={() => router.push('/profile/settings')} />
+            <SettingsRow label="Subscription" onPress={() => router.push('/profile/subscription')} />
+            <SettingsRow label="Account Info" onPress={() => router.push('/profile/account')} />
+            <SettingsRow label="Achievements" onPress={() => router.push('/profile/achievements')} />
+            <SettingsRow label="Send Feedback" onPress={handleSendFeedback} />
+          </div>
+
+          <div style={s.settingsCard}>
+            <SettingsRow label="Logout" onPress={handleLogout} isLogout />
+          </div>
+
+          <p style={s.versionText}>VERSION 1.0.0</p>
         </div>
-
-        <div style={s.settingsCard}>
-          <SettingsRow label="Logout" onPress={handleLogout} isLogout />
-        </div>
-
-        <p style={s.versionText}>VERSION 1.0.0</p>
       </div>
     </div>
   );
@@ -68,25 +71,26 @@ export default function ProfilePage() {
 const s: Record<string, React.CSSProperties> = {
   pageWrapper: {
     position: 'relative',
-    minHeight: '100%',
+    minHeight: '100vh',
     backgroundColor: '#000000',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'flex-start',
     overflow: 'hidden',
   },
-  container: {
+  phoneContainer: {
     position: 'relative',
     zIndex: 1,
-    padding: '16px',
-    paddingBottom: 16,
-    maxWidth: 520,
-    margin: '0 auto',
+    width: '100%',
+    maxWidth: 420,
+    minHeight: '100vh',
+    backgroundColor: '#0A0A0A',
+    borderLeft: '1px solid #1A1A1A',
+    borderRight: '1px solid #1A1A1A',
+    boxShadow: '0 0 60px rgba(0, 0, 0, 0.8)',
   },
-  pageTitle: {
-    fontSize: 32,
-    fontWeight: 700,
-    color: '#FFFFFF',
-    marginBottom: 32,
-    marginTop: 0,
-    letterSpacing: -0.5,
+  phoneContent: {
+    padding: '24px 16px',
   },
   settingsCard: {
     backgroundColor: '#0D0D0D',
