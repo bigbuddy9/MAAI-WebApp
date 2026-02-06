@@ -26,22 +26,24 @@ export default function ProfileSubPageWrapper({ children }: ProfileSubPageWrappe
       {/* Full screen floating dots background */}
       <FloatingDots particleCount={150} side="full" />
 
-      {/* Fixed header at top of screen - back arrow left, menu right */}
-      <div style={s.screenHeader}>
-        <button onClick={() => router.back()} style={s.backBtn}>
-          <span style={s.backBtnText}>{'\u2039'}</span>
-        </button>
-        <button onClick={() => setMenuOpen(true)} style={s.menuBtn}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" strokeWidth={2} strokeLinecap="round" />
-          </svg>
-        </button>
-      </div>
-
       {/* Centered panel */}
       <div style={s.contentWrapper}>
         <div style={s.panel}>
-          {children}
+          {/* Header inside panel - back arrow left, menu right */}
+          <div style={s.panelHeader}>
+            <button onClick={() => router.back()} style={s.backBtn}>
+              <span style={s.backBtnText}>{'\u2039'}</span>
+            </button>
+            <button onClick={() => setMenuOpen(true)} style={s.menuBtn}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                <path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" strokeWidth={2} strokeLinecap="round" />
+              </svg>
+            </button>
+          </div>
+          {/* Page content */}
+          <div style={s.content}>
+            {children}
+          </div>
         </div>
       </div>
 
@@ -82,35 +84,6 @@ const s: Record<string, React.CSSProperties> = {
     backgroundColor: '#000000',
     overflow: 'hidden',
   },
-  screenHeader: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    zIndex: 10,
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: '16px 20px',
-  },
-  backBtn: {
-    background: 'none',
-    border: 'none',
-    cursor: 'pointer',
-    padding: 8,
-  },
-  backBtnText: {
-    fontSize: 32,
-    color: '#FFFFFF',
-    fontWeight: 300,
-  },
-  menuBtn: {
-    background: 'none',
-    border: 'none',
-    cursor: 'pointer',
-    padding: 8,
-    color: '#FFFFFF',
-  },
   contentWrapper: {
     position: 'relative',
     zIndex: 1,
@@ -119,7 +92,7 @@ const s: Record<string, React.CSSProperties> = {
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'stretch',
-    padding: '70px 20px 20px',
+    padding: '20px',
     boxSizing: 'border-box',
   },
   panel: {
@@ -128,9 +101,38 @@ const s: Record<string, React.CSSProperties> = {
     backgroundColor: '#0A0A0A',
     borderRadius: 16,
     border: '1px solid #1A1A1A',
-    padding: '20px 16px 24px',
+    padding: '16px 16px 24px',
     boxShadow: '0 8px 32px rgba(0, 0, 0, 0.6)',
     overflowY: 'auto',
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  panelHeader: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  backBtn: {
+    background: 'none',
+    border: 'none',
+    cursor: 'pointer',
+    padding: 4,
+  },
+  backBtnText: {
+    fontSize: 28,
+    color: '#FFFFFF',
+    fontWeight: 300,
+  },
+  menuBtn: {
+    background: 'none',
+    border: 'none',
+    cursor: 'pointer',
+    padding: 4,
+    color: '#6B6B6B',
+  },
+  content: {
+    flex: 1,
     display: 'flex',
     flexDirection: 'column',
   },
