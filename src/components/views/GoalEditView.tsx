@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useGoals } from '@/contexts/GoalContext';
 
 interface GoalEditViewProps {
@@ -714,8 +715,8 @@ export default function GoalEditView({ goalId, onBack, onDeleted }: GoalEditView
         </div>
       </div>
 
-      {/* Date Picker Modal */}
-      {showDatePicker && (
+      {/* Date Picker Modal - rendered via portal to ensure it's always on top */}
+      {showDatePicker && typeof document !== 'undefined' && createPortal(
         <div style={styles.overlay} onClick={() => setShowDatePicker(false)}>
           <div style={styles.datePickerModal} onClick={e => e.stopPropagation()}>
             <div style={styles.datePickerHeader}>
@@ -735,11 +736,12 @@ export default function GoalEditView({ goalId, onBack, onDeleted }: GoalEditView
               minimumDate={new Date()}
             />
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
-      {/* Delete Confirmation Modal */}
-      {showDeleteConfirm && (
+      {/* Delete Confirmation Modal - rendered via portal */}
+      {showDeleteConfirm && typeof document !== 'undefined' && createPortal(
         <div style={styles.overlay} onClick={() => setShowDeleteConfirm(false)}>
           <div style={styles.confirmModal} onClick={e => e.stopPropagation()}>
             <span style={styles.confirmTitle}>
@@ -760,11 +762,12 @@ export default function GoalEditView({ goalId, onBack, onDeleted }: GoalEditView
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
-      {/* Completed Goal Warning */}
-      {showCompletedWarning && (
+      {/* Completed Goal Warning - rendered via portal */}
+      {showCompletedWarning && typeof document !== 'undefined' && createPortal(
         <div style={styles.overlay} onClick={() => setShowCompletedWarning(false)}>
           <div style={styles.confirmModal} onClick={e => e.stopPropagation()}>
             <span style={styles.confirmTitle}>Cannot Edit</span>
@@ -778,7 +781,8 @@ export default function GoalEditView({ goalId, onBack, onDeleted }: GoalEditView
               <span style={{ color: colors.textPrimary, fontSize: 15, fontWeight: 600 }}>Got it</span>
             </button>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
@@ -1045,7 +1049,7 @@ const styles: Record<string, React.CSSProperties> = {
     alignItems: 'center',
     justifyContent: 'center',
     padding: 20,
-    zIndex: 1000,
+    zIndex: 9999,
   },
   datePickerModal: {
     backgroundColor: colors.card,

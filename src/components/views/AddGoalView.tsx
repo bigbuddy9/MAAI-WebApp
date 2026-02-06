@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useGoals } from '@/contexts/GoalContext';
 import { getGoalColor } from '@/shared';
 
@@ -636,8 +637,8 @@ export default function AddGoalView({ onBack }: AddGoalViewProps) {
         </div>
       </div>
 
-      {/* Date Picker Modal */}
-      {showDatePicker && (
+      {/* Date Picker Modal - rendered via portal to ensure it's always on top */}
+      {showDatePicker && typeof document !== 'undefined' && createPortal(
         <div style={styles.datePickerModal} onClick={() => setShowDatePicker(false)}>
           <div style={styles.datePickerContainer} onClick={(e) => e.stopPropagation()}>
             <div style={styles.datePickerHeader}>
@@ -657,7 +658,8 @@ export default function AddGoalView({ onBack }: AddGoalViewProps) {
               minimumDate={new Date()}
             />
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Global style overrides for native inputs */}
@@ -835,17 +837,17 @@ const styles: Record<string, React.CSSProperties> = {
 
   // Date Picker Modal (contained within panel, not full screen)
   datePickerModal: {
-    position: 'absolute' as const,
+    position: 'fixed' as const,
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
     display: 'flex',
-    justifyContent: 'flex-end',
-    alignItems: 'stretch',
+    justifyContent: 'center',
+    alignItems: 'center',
     flexDirection: 'column' as const,
-    zIndex: 300,
+    zIndex: 9999,
   },
   datePickerContainer: {
     backgroundColor: colors.card,
