@@ -1278,7 +1278,7 @@ const s: Record<string, React.CSSProperties> = {
     justifyContent: 'center',
     alignItems: 'center',
     padding: spacing.xl,
-    zIndex: 9999,
+    zIndex: 2147483647,
   },
   modalContent: {
     width: '100%',

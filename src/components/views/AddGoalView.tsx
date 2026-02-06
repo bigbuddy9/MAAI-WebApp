@@ -847,7 +847,7 @@ const styles: Record<string, React.CSSProperties> = {
     justifyContent: 'center',
     alignItems: 'center',
     flexDirection: 'column' as const,
-    zIndex: 9999,
+    zIndex: 2147483647,
   },
   datePickerContainer: {
     backgroundColor: colors.card,

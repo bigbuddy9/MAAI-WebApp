@@ -1049,7 +1049,7 @@ const styles: Record<string, React.CSSProperties> = {
     alignItems: 'center',
     justifyContent: 'center',
     padding: 20,
-    zIndex: 9999,
+    zIndex: 2147483647,
   },
   datePickerModal: {
     backgroundColor: colors.card,
