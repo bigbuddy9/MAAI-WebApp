@@ -40,11 +40,9 @@ const s: Record<string, React.CSSProperties> = {
     height: '100%',
     display: 'flex',
     justifyContent: 'center',
-    alignItems: 'flex-start',
+    alignItems: 'stretch',
     padding: '20px',
-    paddingTop: '40px',
     boxSizing: 'border-box',
-    overflowY: 'auto',
   },
   panel: {
     width: '100%',
@@ -54,6 +52,8 @@ const s: Record<string, React.CSSProperties> = {
     border: '1px solid #1A1A1A',
     padding: '20px 16px 24px',
     boxShadow: '0 8px 32px rgba(0, 0, 0, 0.6)',
-    marginBottom: 40,
+    overflowY: 'auto',
+    display: 'flex',
+    flexDirection: 'column',
   },
 };

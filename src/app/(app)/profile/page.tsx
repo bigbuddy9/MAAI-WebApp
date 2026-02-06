@@ -224,7 +224,7 @@ const s: Record<string, React.CSSProperties> = {
     height: '100%',
     display: 'flex',
     justifyContent: 'center',
-    alignItems: 'center',
+    alignItems: 'stretch',
     padding: '20px',
     boxSizing: 'border-box',
   },
@@ -236,6 +236,9 @@ const s: Record<string, React.CSSProperties> = {
     border: '1px solid #1A1A1A',
     padding: '20px 16px 24px',
     boxShadow: '0 8px 32px rgba(0, 0, 0, 0.6)',
+    overflowY: 'auto',
+    display: 'flex',
+    flexDirection: 'column',
   },
   settingsCard: {
     backgroundColor: '#0D0D0D',
