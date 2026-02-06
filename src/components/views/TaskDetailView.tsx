@@ -664,6 +664,13 @@ function WebTaskHistoryGrid({
     const history = completionHistory || {};
     const today = new Date();
     today.setHours(0, 0, 0, 0);
+    const todayStr = formatDate(today);
+
+    // Debug: log what the grid receives
+    console.log('[WebTaskHistoryGrid] received history:', history);
+    console.log('[WebTaskHistoryGrid] today dateStr:', todayStr);
+    console.log('[WebTaskHistoryGrid] history has today?', history[todayStr]);
+
     const weeksData: WeekData[] = [];
 
     const thirtyDaysAgo = new Date(today);
