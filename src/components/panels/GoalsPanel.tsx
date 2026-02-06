@@ -20,7 +20,7 @@ export default function GoalsPanel() {
   const [view, setView] = useState<PanelView>({ type: 'list' });
 
   return (
-    <div style={{ position: 'relative', height: '100%', overflow: 'hidden' }}>
+    <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
       {/* Always render the main goal list */}
       <GoalListView
         onNavigateToGoal={(goalId) => setView({ type: 'detail', goalId })}

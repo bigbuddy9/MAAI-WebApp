@@ -20,7 +20,7 @@ export default function GoalsPage() {
   const [overlay, setOverlay] = useState<OverlayView>(null);
 
   return (
-    <div style={{ position: 'relative', height: '100%', overflow: 'hidden' }}>
+    <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
       <GoalListView
         onNavigateToGoal={(goalId) => setOverlay({ type: 'detail', goalId })}
         onAddGoal={() => setOverlay({ type: 'add' })}
