@@ -455,13 +455,20 @@ export default function GoalListView({ onNavigateToGoal, onAddGoal }: GoalListVi
   }
 
   return (
-    <div style={{ flex: 1, backgroundColor: colors.background }}>
+    <div style={{
+      flex: 1,
+      display: 'flex',
+      flexDirection: 'column',
+      overflow: 'hidden',
+      backgroundColor: colors.background,
+    }}>
       {/* Active/Completed Toggle - matching mobile filterContainer */}
       <div style={{
         paddingLeft: spacing.lg,
         paddingRight: spacing.lg,
         paddingTop: spacing.lg,
         marginBottom: spacing.lg,
+        flexShrink: 0,
       }}>
         <div style={{
           display: 'flex',
@@ -499,9 +506,10 @@ export default function GoalListView({ onNavigateToGoal, onAddGoal }: GoalListVi
       {/* Scrollable content - matching mobile scrollContent */}
       <div style={{
         flex: 1,
+        minHeight: 0,
         overflowY: 'auto',
         padding: spacing.lg, // 16
-        paddingBottom: 16,
+        paddingBottom: 32,
       }}>
         {/* Active Goals */}
         {filter === 'active' && (
