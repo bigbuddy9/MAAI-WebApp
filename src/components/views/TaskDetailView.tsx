@@ -664,12 +664,18 @@ function WebTaskHistoryGrid({
     const history = completionHistory || {};
     const today = new Date();
     today.setHours(0, 0, 0, 0);
+
+    // Normalize startDate to local midnight to fix timezone issues
+    // (new Date("2026-02-06") creates UTC midnight, which can be yesterday in local time)
+    const normalizedStartDate = new Date(startDate);
+    normalizedStartDate.setHours(0, 0, 0, 0);
+
     const weeksData: WeekData[] = [];
 
     const thirtyDaysAgo = new Date(today);
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-    const effectiveStart = new Date(Math.min(startDate.getTime(), thirtyDaysAgo.getTime()));
+    const effectiveStart = new Date(Math.min(normalizedStartDate.getTime(), thirtyDaysAgo.getTime()));
     const start = new Date(effectiveStart);
     const startDayOfWeek = (start.getDay() + 6) % 7;
     start.setDate(start.getDate() - startDayOfWeek);
@@ -691,11 +697,12 @@ function WebTaskHistoryGrid({
       for (let day = 0; day < 7; day++) {
         const dayDate = new Date(current);
         dayDate.setDate(current.getDate() + day);
+        dayDate.setHours(0, 0, 0, 0); // Normalize to midnight for comparison
 
         const dayOfWeek = (dayDate.getDay() + 6) % 7;
         const dateStr = formatDate(dayDate);
         const isFuture = dayDate > today;
-        const isBeforeStart = dayDate < startDate;
+        const isBeforeStart = dayDate < normalizedStartDate;
         const isScheduled = selectedDays.includes(dayOfWeek);
 
         let status: 'completed' | 'missed' | 'not-scheduled' | 'future';
