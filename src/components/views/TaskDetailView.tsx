@@ -145,16 +145,21 @@ export default function TaskDetailView({ taskId, onBack, onNavigateToHistory }: 
   const frequencies: Frequency[] = ['1x', '2x', '3x', '4x', '5x', '6x', 'daily'];
   const dayLabels = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
 
+  // Ensure taskId is a number for comparison (defensive against string/number mismatch)
+  const numericTaskId = Number(taskId);
+
   // Build completion history - compute fresh each render to ensure updates
   const completionHistory: { [date: string]: boolean } = {};
   completions.forEach(c => {
-    if (c.taskId === taskId && c.completed) {
+    if (Number(c.taskId) === numericTaskId && c.completed) {
       completionHistory[c.date] = true;
     }
   });
 
   // Debug: log completion data (remove after debugging)
-  console.log('[TaskDetailView] taskId:', taskId, 'completions for task:', completions.filter(c => c.taskId === taskId), 'history:', completionHistory);
+  console.log('[TaskDetailView] taskId:', taskId, 'typeof:', typeof taskId, 'numericTaskId:', numericTaskId);
+  console.log('[TaskDetailView] total completions:', completions.length, 'completions for this task:', completions.filter(c => Number(c.taskId) === numericTaskId));
+  console.log('[TaskDetailView] built history:', completionHistory);
 
   const getRequiredDays = (freq: Frequency): number => {
     if (freq === 'daily') return 7;
