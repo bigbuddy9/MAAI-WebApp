@@ -69,10 +69,12 @@ export default function SubscriptionPage() {
 
       <div style={s.planCard}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
-          <div style={s.planName}>MyAccountable.AI Pro</div>
-          <div style={{ ...s.statusBadge, backgroundColor: `${getStatusColor()}20`, borderColor: `${getStatusColor()}40` }}>
-            <span style={{ ...s.statusBadgeText, color: getStatusColor() }}>{getStatusLabel()}</span>
-          </div>
+          <div style={s.planName}>MyAccountableAI</div>
+          {!whitelisted && (
+            <div style={{ ...s.statusBadge, backgroundColor: `${getStatusColor()}20`, borderColor: `${getStatusColor()}40` }}>
+              <span style={{ ...s.statusBadgeText, color: getStatusColor() }}>{getStatusLabel()}</span>
+            </div>
+          )}
         </div>
         {daysRemaining !== null && (
           <div style={s.planStatus}>
