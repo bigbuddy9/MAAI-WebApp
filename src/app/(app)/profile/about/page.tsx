@@ -1,6 +1,5 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
 import ProfileSubPageWrapper from '@/components/layout/ProfileSubPageWrapper';
 
 const colors = {
@@ -13,18 +12,12 @@ const colors = {
 };
 
 export default function AboutPage() {
-  const router = useRouter();
-
   const handleExternalLink = (url: string) => {
     window.open(url, '_blank', 'noopener,noreferrer');
   };
 
   return (
     <ProfileSubPageWrapper>
-      <button onClick={() => router.back()} style={s.backBtn}>
-        <span style={s.backBtnText}>{'\u2039'}</span>
-      </button>
-
       <h1 style={s.pageTitle}>About</h1>
 
       <p style={s.tagline}>Your brain lies to you. Data doesn&apos;t.</p>
@@ -64,18 +57,6 @@ export default function AboutPage() {
 }
 
 const s: Record<string, React.CSSProperties> = {
-  backBtn: {
-    marginBottom: 12,
-    background: 'none',
-    border: 'none',
-    cursor: 'pointer',
-    padding: 0,
-  },
-  backBtnText: {
-    fontSize: 28,
-    color: colors.textPrimary,
-    fontWeight: 300,
-  },
   pageTitle: {
     fontSize: 32,
     fontWeight: 700,

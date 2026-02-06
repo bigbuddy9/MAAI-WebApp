@@ -1,6 +1,5 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
 import { useAchievements } from '@/contexts/AchievementContext';
 import {
   ACHIEVEMENTS,
@@ -20,7 +19,6 @@ const colors = {
 };
 
 export default function AchievementsPage() {
-  const router = useRouter();
   const { unlockedAchievements, totalUnlocked, totalAchievements, isLoading } = useAchievements();
 
   const unlockedIds = new Set(unlockedAchievements.map(a => a.achievementId));
@@ -30,10 +28,6 @@ export default function AchievementsPage() {
 
   return (
     <ProfileSubPageWrapper>
-      <button onClick={() => router.back()} style={s.backBtn}>
-        <span style={s.backBtnText}>{'\u2039'}</span>
-      </button>
-
       <h1 style={s.pageTitle}>Achievements</h1>
 
       <p style={s.subtitle}>
@@ -104,18 +98,6 @@ export default function AchievementsPage() {
 }
 
 const s: Record<string, React.CSSProperties> = {
-  backBtn: {
-    marginBottom: 12,
-    background: 'none',
-    border: 'none',
-    cursor: 'pointer',
-    padding: 0,
-  },
-  backBtnText: {
-    fontSize: 28,
-    color: colors.textPrimary,
-    fontWeight: 300,
-  },
   pageTitle: {
     fontSize: 32,
     fontWeight: 700,

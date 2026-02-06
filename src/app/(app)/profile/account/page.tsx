@@ -52,10 +52,6 @@ export default function AccountPage() {
 
   return (
     <ProfileSubPageWrapper>
-      <button onClick={() => router.back()} style={s.backBtn}>
-        <span style={s.backBtnText}>{'\u2039'}</span>
-      </button>
-
       <h1 style={s.pageTitle}>Account Info</h1>
 
       <div style={s.infoCard}>
@@ -93,18 +89,6 @@ export default function AccountPage() {
 }
 
 const s: Record<string, React.CSSProperties> = {
-  backBtn: {
-    marginBottom: 12,
-    background: 'none',
-    border: 'none',
-    cursor: 'pointer',
-    padding: 0,
-  },
-  backBtnText: {
-    fontSize: 28,
-    color: colors.textPrimary,
-    fontWeight: 300,
-  },
   pageTitle: {
     fontSize: 32,
     fontWeight: 700,

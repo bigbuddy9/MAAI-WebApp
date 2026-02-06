@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import ProfileSubPageWrapper from '@/components/layout/ProfileSubPageWrapper';
 
@@ -17,7 +16,6 @@ const colors = {
 };
 
 export default function SubscriptionPage() {
-  const router = useRouter();
   const { status, whitelisted, trialEnd, currentPeriodEnd, cancelAt } = useSubscription();
   const [managingLoading, setManagingLoading] = useState(false);
 
@@ -67,10 +65,6 @@ export default function SubscriptionPage() {
 
   return (
     <ProfileSubPageWrapper>
-      <button onClick={() => router.back()} style={s.backBtn}>
-        <span style={s.backBtnText}>{'\u2039'}</span>
-      </button>
-
       <h1 style={s.pageTitle}>Subscription</h1>
 
       <div style={s.planCard}>
@@ -126,18 +120,6 @@ export default function SubscriptionPage() {
 }
 
 const s: Record<string, React.CSSProperties> = {
-  backBtn: {
-    marginBottom: 12,
-    background: 'none',
-    border: 'none',
-    cursor: 'pointer',
-    padding: 0,
-  },
-  backBtnText: {
-    fontSize: 28,
-    color: colors.textPrimary,
-    fontWeight: 300,
-  },
   pageTitle: {
     fontSize: 32,
     fontWeight: 700,

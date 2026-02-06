@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import ProfileSubPageWrapper from '@/components/layout/ProfileSubPageWrapper';
 
 const colors = {
@@ -43,7 +42,6 @@ function Toggle({ value, onValueChange }: { value: boolean; onValueChange: (v: b
 }
 
 export default function SettingsPage() {
-  const router = useRouter();
   const [weekStartsMonday, setWeekStartsMonday] = useState(true);
 
   // Notification preferences (web doesn't have push notifications,
@@ -74,10 +72,6 @@ export default function SettingsPage() {
 
   return (
     <ProfileSubPageWrapper>
-      <button onClick={() => router.back()} style={s.backBtn}>
-        <span style={s.backBtnText}>{'\u2039'}</span>
-      </button>
-
       <h1 style={s.pageTitle}>Settings</h1>
 
       <span style={s.sectionTitle}>Notifications</span>
@@ -158,18 +152,6 @@ export default function SettingsPage() {
 }
 
 const s: Record<string, React.CSSProperties> = {
-  backBtn: {
-    marginBottom: 12,
-    background: 'none',
-    border: 'none',
-    cursor: 'pointer',
-    padding: 0,
-  },
-  backBtnText: {
-    fontSize: 28,
-    color: colors.textPrimary,
-    fontWeight: 300,
-  },
   pageTitle: {
     fontSize: 32,
     fontWeight: 700,
