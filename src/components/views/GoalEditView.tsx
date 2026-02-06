@@ -236,6 +236,13 @@ const formatDate = (date: Date | null): string => {
   });
 };
 
+/* ─── Auto-resize textarea ─── */
+const autoResize = (e: React.ChangeEvent<HTMLTextAreaElement> | HTMLTextAreaElement) => {
+  const textarea = 'target' in e ? e.target : e;
+  textarea.style.height = 'auto';
+  textarea.style.height = textarea.scrollHeight + 'px';
+};
+
 /* ─── Main Component ─── */
 export default function GoalEditView({ goalId, onBack, onDeleted }: GoalEditViewProps) {
   const { goals, updateGoal, deleteGoal } = useGoals();
@@ -315,6 +322,12 @@ export default function GoalEditView({ goalId, onBack, onDeleted }: GoalEditView
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showCompletedWarning, setShowCompletedWarning] = useState(false);
 
+  // Textarea refs for auto-resize
+  const completionRef = useRef<HTMLTextAreaElement>(null);
+  const whyRef = useRef<HTMLTextAreaElement>(null);
+  const rewardRef = useRef<HTMLTextAreaElement>(null);
+  const futureRef = useRef<HTMLTextAreaElement>(null);
+
   // Initialize from existing goal
   useEffect(() => {
     if (existingGoal) {
@@ -331,6 +344,14 @@ export default function GoalEditView({ goalId, onBack, onDeleted }: GoalEditView
       setReward(existingGoal.reward);
       setFutureMessage(existingGoal.futureMessage || '');
       setCommitted(existingGoal.committed);
+
+      // Auto-resize textareas after data loads
+      setTimeout(() => {
+        if (completionRef.current) autoResize(completionRef.current);
+        if (whyRef.current) autoResize(whyRef.current);
+        if (rewardRef.current) autoResize(rewardRef.current);
+        if (futureRef.current) autoResize(futureRef.current);
+      }, 0);
     }
   }, [existingGoal?.id]);
 
@@ -514,11 +535,11 @@ export default function GoalEditView({ goalId, onBack, onDeleted }: GoalEditView
             <div style={styles.field}>
               <span style={styles.fieldLabel}>Completion Criteria</span>
               <textarea
+                ref={completionRef}
                 style={{ ...styles.textInput, ...styles.textArea }}
                 placeholder="How will you know when this goal is complete?"
                 value={completionCriteria}
-                onChange={e => setCompletionCriteria(e.target.value)}
-                rows={2}
+                onChange={e => { setCompletionCriteria(e.target.value); autoResize(e); }}
               />
             </div>
 
@@ -621,11 +642,11 @@ export default function GoalEditView({ goalId, onBack, onDeleted }: GoalEditView
             <div style={styles.field}>
               <span style={styles.fieldLabel}>Why This Matters</span>
               <textarea
+                ref={whyRef}
                 style={{ ...styles.textInput, ...styles.textArea }}
                 placeholder="Why is this goal important to you?"
                 value={why}
-                onChange={e => setWhy(e.target.value)}
-                rows={2}
+                onChange={e => { setWhy(e.target.value); autoResize(e); }}
               />
             </div>
 
@@ -633,11 +654,11 @@ export default function GoalEditView({ goalId, onBack, onDeleted }: GoalEditView
             <div style={styles.field}>
               <span style={styles.fieldLabel}>Your Reward</span>
               <textarea
+                ref={rewardRef}
                 style={{ ...styles.textInput, ...styles.textArea }}
                 placeholder="What will you reward yourself with?"
                 value={reward}
-                onChange={e => setReward(e.target.value)}
-                rows={2}
+                onChange={e => { setReward(e.target.value); autoResize(e); }}
               />
             </div>
 
@@ -645,11 +666,11 @@ export default function GoalEditView({ goalId, onBack, onDeleted }: GoalEditView
             <div style={styles.field}>
               <span style={styles.fieldLabel}>Note to Future Self</span>
               <textarea
+                ref={futureRef}
                 style={{ ...styles.textInput, ...styles.textArea }}
                 placeholder="Message to self upon completion..."
                 value={futureMessage}
-                onChange={e => setFutureMessage(e.target.value)}
-                rows={3}
+                onChange={e => { setFutureMessage(e.target.value); autoResize(e); }}
               />
             </div>
 
@@ -865,8 +886,9 @@ const styles: Record<string, React.CSSProperties> = {
     fontFamily: 'inherit',
   },
   textArea: {
-    minHeight: 48,
-    resize: 'vertical',
+    minHeight: 24,
+    resize: 'none',
+    overflow: 'hidden',
   },
   datePickerButton: {
     padding: '12px 14px',

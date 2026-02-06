@@ -215,6 +215,13 @@ const PRIORITY_OPTIONS = [
   { value: 5, label: '#5', color: '#7C3AED' },
 ];
 
+/* ─── Auto-resize textarea ─── */
+const autoResize = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+  const textarea = e.target;
+  textarea.style.height = 'auto';
+  textarea.style.height = textarea.scrollHeight + 'px';
+};
+
 export default function AddGoalView({ onBack }: AddGoalViewProps) {
   const { addGoal } = useGoals();
 
@@ -455,8 +462,7 @@ export default function AddGoalView({ onBack }: AddGoalViewProps) {
               style={{ ...styles.textInput, ...styles.textArea }}
               placeholder="How will you know when this goal is complete?"
               value={completionCriteria}
-              onChange={(e) => setCompletionCriteria(e.target.value)}
-              rows={2}
+              onChange={(e) => { setCompletionCriteria(e.target.value); autoResize(e); }}
             />
           </div>
 
@@ -558,8 +564,7 @@ export default function AddGoalView({ onBack }: AddGoalViewProps) {
               style={{ ...styles.textInput, ...styles.textArea }}
               placeholder="Why is this goal important to you?"
               value={why}
-              onChange={(e) => setWhy(e.target.value)}
-              rows={2}
+              onChange={(e) => { setWhy(e.target.value); autoResize(e); }}
             />
           </div>
 
@@ -570,8 +575,7 @@ export default function AddGoalView({ onBack }: AddGoalViewProps) {
               style={{ ...styles.textInput, ...styles.textArea }}
               placeholder="What will you reward yourself with?"
               value={reward}
-              onChange={(e) => setReward(e.target.value)}
-              rows={2}
+              onChange={(e) => { setReward(e.target.value); autoResize(e); }}
             />
           </div>
 
@@ -579,11 +583,10 @@ export default function AddGoalView({ onBack }: AddGoalViewProps) {
           <div style={styles.field}>
             <label style={styles.fieldLabel}>Note to Future Self</label>
             <textarea
-              style={{ ...styles.textInput, ...styles.textArea, minHeight: 72 }}
+              style={{ ...styles.textInput, ...styles.textArea }}
               placeholder="Message to self upon completion..."
               value={futureMessage}
-              onChange={(e) => setFutureMessage(e.target.value)}
-              rows={3}
+              onChange={(e) => { setFutureMessage(e.target.value); autoResize(e); }}
             />
           </div>
 
@@ -798,7 +801,9 @@ const styles: Record<string, React.CSSProperties> = {
     resize: 'none' as const,
   },
   textArea: {
-    minHeight: 48,
+    minHeight: 24,
+    resize: 'none' as const,
+    overflow: 'hidden',
   },
 
   // Date Picker Button
