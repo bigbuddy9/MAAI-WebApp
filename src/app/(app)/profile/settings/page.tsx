@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import ProfileSubPageWrapper from '@/components/layout/ProfileSubPageWrapper';
 
 const colors = {
   background: '#0A0A0A',
@@ -72,7 +73,7 @@ export default function SettingsPage() {
   };
 
   return (
-    <div style={s.container}>
+    <ProfileSubPageWrapper>
       <button onClick={() => router.back()} style={s.backBtn}>
         <span style={s.backBtnText}>{'\u2039'}</span>
       </button>
@@ -152,17 +153,11 @@ export default function SettingsPage() {
           <span style={s.settingsArrow}>{'\u203A'}</span>
         </button>
       </div>
-    </div>
+    </ProfileSubPageWrapper>
   );
 }
 
 const s: Record<string, React.CSSProperties> = {
-  container: {
-    padding: 16,
-    paddingBottom: 100,
-    overflowY: 'auto',
-    height: '100%',
-  },
   backBtn: {
     marginBottom: 12,
     background: 'none',
