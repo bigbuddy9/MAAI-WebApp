@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { createPortal } from 'react-dom';
 import { useGoals } from '@/contexts/GoalContext';
+import ModalPortal from '@/components/ui/ModalPortal';
 
 interface GoalEditViewProps {
   goalId: number;
@@ -715,8 +715,8 @@ export default function GoalEditView({ goalId, onBack, onDeleted }: GoalEditView
         </div>
       </div>
 
-      {/* Date Picker Modal - rendered via portal to ensure it's always on top */}
-      {showDatePicker && typeof document !== 'undefined' && createPortal(
+      {/* Date Picker Modal - rendered via ModalPortal to ensure it's always on top */}
+      <ModalPortal isOpen={showDatePicker}>
         <div style={styles.overlay} onClick={() => setShowDatePicker(false)}>
           <div style={styles.datePickerModal} onClick={e => e.stopPropagation()}>
             <div style={styles.datePickerHeader}>
@@ -736,12 +736,11 @@ export default function GoalEditView({ goalId, onBack, onDeleted }: GoalEditView
               minimumDate={new Date()}
             />
           </div>
-        </div>,
-        document.body
-      )}
+        </div>
+      </ModalPortal>
 
-      {/* Delete Confirmation Modal - rendered via portal */}
-      {showDeleteConfirm && typeof document !== 'undefined' && createPortal(
+      {/* Delete Confirmation Modal - rendered via ModalPortal */}
+      <ModalPortal isOpen={showDeleteConfirm}>
         <div style={styles.overlay} onClick={() => setShowDeleteConfirm(false)}>
           <div style={styles.confirmModal} onClick={e => e.stopPropagation()}>
             <span style={styles.confirmTitle}>
@@ -762,12 +761,11 @@ export default function GoalEditView({ goalId, onBack, onDeleted }: GoalEditView
               </button>
             </div>
           </div>
-        </div>,
-        document.body
-      )}
+        </div>
+      </ModalPortal>
 
-      {/* Completed Goal Warning - rendered via portal */}
-      {showCompletedWarning && typeof document !== 'undefined' && createPortal(
+      {/* Completed Goal Warning - rendered via ModalPortal */}
+      <ModalPortal isOpen={showCompletedWarning}>
         <div style={styles.overlay} onClick={() => setShowCompletedWarning(false)}>
           <div style={styles.confirmModal} onClick={e => e.stopPropagation()}>
             <span style={styles.confirmTitle}>Cannot Edit</span>
@@ -781,9 +779,8 @@ export default function GoalEditView({ goalId, onBack, onDeleted }: GoalEditView
               <span style={{ color: colors.textPrimary, fontSize: 15, fontWeight: 600 }}>Got it</span>
             </button>
           </div>
-        </div>,
-        document.body
-      )}
+        </div>
+      </ModalPortal>
     </div>
   );
 }

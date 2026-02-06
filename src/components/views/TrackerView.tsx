@@ -430,12 +430,16 @@ function TaskCardInline({
             if (disabled) return;
             const sanitized = e.target.value.replace(/[^0-9]/g, '');
             setInputValue(sanitized);
+            // Immediately update value and completion status
+            const num = parseInt(sanitized, 10);
+            const newVal = isNaN(num) ? 0 : num;
+            onValueChange?.(newVal);
+            // Update optimistic completion based on whether value meets target
+            const meetsTarget = task.target !== undefined && newVal >= task.target;
+            setOptimisticCompleted(meetsTarget);
           }}
           onBlur={() => {
-            if (disabled) return;
-            const num = parseInt(inputValue, 10);
-            const newVal = isNaN(num) ? undefined : num;
-            onValueChange?.(newVal);
+            // No longer needed for value update, but keep for potential focus styling
           }}
           style={{
             width: 56, height: 36,

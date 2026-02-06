@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { createPortal } from 'react-dom';
 import { useTasks } from '@/contexts/TaskContext';
+import ModalPortal from '@/components/ui/ModalPortal';
 import { useGoals } from '@/contexts/GoalContext';
 import { getGoalColor } from '@/shared';
 
@@ -438,8 +438,8 @@ export default function AddTaskView({ onBack, createdAt }: AddTaskViewProps) {
         </div>
       </div>
 
-      {/* Goal Picker Modal - rendered via portal to ensure it's always on top */}
-      {showGoalPicker && typeof document !== 'undefined' && createPortal(
+      {/* Goal Picker Modal - rendered via ModalPortal to ensure it's always on top */}
+      <ModalPortal isOpen={showGoalPicker}>
         <div
           style={styles.modalOverlay}
           onClick={() => setShowGoalPicker(false)}
@@ -507,9 +507,8 @@ export default function AddTaskView({ onBack, createdAt }: AddTaskViewProps) {
               );
             })()}
           </div>
-        </div>,
-        document.body
-      )}
+        </div>
+      </ModalPortal>
     </div>
   );
 }

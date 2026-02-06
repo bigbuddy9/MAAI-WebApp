@@ -5,6 +5,7 @@ import { useTasks } from '@/contexts/TaskContext';
 import { useGoals } from '@/contexts/GoalContext';
 import { useStats } from '@/contexts/StatsContext';
 import { getGoalColor } from '@/shared';
+import ModalPortal from '@/components/ui/ModalPortal';
 
 type TabMode = 'edit' | 'history';
 type TaskType = 'checkbox' | 'number';
@@ -477,8 +478,8 @@ export default function TaskDetailView({ taskId, onBack, onNavigateToHistory }: 
         </div>
       )}
 
-      {/* Goal Picker Modal */}
-      {showGoalPicker && (
+      {/* Goal Picker Modal - rendered via ModalPortal to ensure it's always on top */}
+      <ModalPortal isOpen={showGoalPicker}>
         <div style={s.modalOverlay} onClick={() => setShowGoalPicker(false)}>
           <div style={s.modalContent} onClick={(e) => e.stopPropagation()}>
             <span style={s.modalTitle}>Select Goal</span>
@@ -536,10 +537,10 @@ export default function TaskDetailView({ taskId, onBack, onNavigateToHistory }: 
             })()}
           </div>
         </div>
-      )}
+      </ModalPortal>
 
-      {/* Delete Confirmation Modal */}
-      {showDeleteConfirm && (
+      {/* Delete Confirmation Modal - rendered via ModalPortal */}
+      <ModalPortal isOpen={showDeleteConfirm}>
         <div style={s.modalOverlay} onClick={() => setShowDeleteConfirm(false)}>
           <div style={s.modalContent} onClick={(e) => e.stopPropagation()}>
             <span style={s.modalTitle}>Delete Task</span>
@@ -562,7 +563,7 @@ export default function TaskDetailView({ taskId, onBack, onNavigateToHistory }: 
             </div>
           </div>
         </div>
-      )}
+      </ModalPortal>
     </div>
   );
 }

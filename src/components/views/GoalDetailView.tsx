@@ -6,6 +6,7 @@ import { useTasks } from '@/contexts/TaskContext';
 import { useStats } from '@/contexts/StatsContext';
 import { getGoalColor } from '@/shared';
 import * as calculations from '@/shared';
+import ModalPortal from '@/components/ui/ModalPortal';
 
 interface GoalDetailViewProps {
   goalId: number;
@@ -754,8 +755,8 @@ export default function GoalDetailView({ goalId, onBack, onNavigateToTask, onEdi
         </div>
       </div>
 
-      {/* Confirmation Modal */}
-      {showConfirmModal && (
+      {/* Confirmation Modal - rendered via ModalPortal */}
+      <ModalPortal isOpen={showConfirmModal}>
         <div style={styles.confirmOverlay} onClick={() => setShowConfirmModal(false)}>
           <div style={styles.confirmModal} onClick={e => e.stopPropagation()}>
             <span style={styles.confirmTitle}>Complete Goal?</span>
@@ -772,10 +773,10 @@ export default function GoalDetailView({ goalId, onBack, onNavigateToTask, onEdi
             </button>
           </div>
         </div>
-      )}
+      </ModalPortal>
 
-      {/* Celebration Modal */}
-      {showCelebration && (
+      {/* Celebration Modal - rendered via ModalPortal */}
+      <ModalPortal isOpen={showCelebration}>
         <div style={styles.celebrationOverlay} onClick={handleCelebrationDone}>
           {/* Centered content group */}
           <div style={styles.celebrationContent}>
@@ -810,10 +811,10 @@ export default function GoalDetailView({ goalId, onBack, onNavigateToTask, onEdi
             <span style={styles.celebrationHint}>Tap anywhere to continue</span>
           </div>
         </div>
-      )}
+      </ModalPortal>
 
-      {/* Reflection Modal */}
-      {showReflection && (
+      {/* Reflection Modal - rendered via ModalPortal */}
+      <ModalPortal isOpen={showReflection}>
         <div style={styles.reflectionOverlay}>
           <div style={styles.reflectionModal}>
             <span style={styles.reflectionTitle}>Note to Past Self</span>
@@ -847,7 +848,7 @@ export default function GoalDetailView({ goalId, onBack, onNavigateToTask, onEdi
             </button>
           </div>
         </div>
-      )}
+      </ModalPortal>
     </div>
   );
 }

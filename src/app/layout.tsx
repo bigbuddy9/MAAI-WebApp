@@ -21,6 +21,8 @@ export default function RootLayout({
             {children}
           </SubscriptionProvider>
         </AuthProvider>
+        {/* Modal root - fixed position covering viewport, pointer-events none so it doesn't block */}
+        <div id="modal-root" />
       </body>
     </html>
   );

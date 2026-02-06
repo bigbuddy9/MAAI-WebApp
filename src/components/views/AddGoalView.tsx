@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { createPortal } from 'react-dom';
 import { useGoals } from '@/contexts/GoalContext';
+import ModalPortal from '@/components/ui/ModalPortal';
 import { getGoalColor } from '@/shared';
 
 interface AddGoalViewProps {
@@ -637,8 +637,8 @@ export default function AddGoalView({ onBack }: AddGoalViewProps) {
         </div>
       </div>
 
-      {/* Date Picker Modal - rendered via portal to ensure it's always on top */}
-      {showDatePicker && typeof document !== 'undefined' && createPortal(
+      {/* Date Picker Modal - rendered via ModalPortal to ensure it's always on top */}
+      <ModalPortal isOpen={showDatePicker}>
         <div style={styles.datePickerModal} onClick={() => setShowDatePicker(false)}>
           <div style={styles.datePickerContainer} onClick={(e) => e.stopPropagation()}>
             <div style={styles.datePickerHeader}>
@@ -658,9 +658,8 @@ export default function AddGoalView({ onBack }: AddGoalViewProps) {
               minimumDate={new Date()}
             />
           </div>
-        </div>,
-        document.body
-      )}
+        </div>
+      </ModalPortal>
 
       {/* Global style overrides for native inputs */}
       <style>{`

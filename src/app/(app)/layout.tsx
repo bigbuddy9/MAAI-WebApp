@@ -28,6 +28,13 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     'jessebarbato788@gmail.com',
     'brunnno2002@gmail.com',
     'jono.kazzaa@gmail.com',
+    'n.business.corp@gmail.com',
+    'ashton.lake8@gmail.com',
+    'kingjouza@gmail.com',
+    'jackoaye501@gmail.com',
+    'noahemerald10@gmail.com',
+    'alexandre.patterson@gmail.com',
+    'echoai.generativeai@gmail.com',
   ];
 
   const userEmail = session?.user?.email?.toLowerCase() || '';

@@ -175,3 +175,18 @@ select {
   0% { transform: rotate(-0.4deg); }
   100% { transform: rotate(0.4deg); }
 }
+
+/* Modal root - ensures modals always render above all content */
+#modal-root {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 0 !important;
+  height: 0 !important;
+  z-index: 2147483647 !important;
+  pointer-events: none !important;
+}
+
+#modal-root > * {
+  pointer-events: auto !important;
+}
