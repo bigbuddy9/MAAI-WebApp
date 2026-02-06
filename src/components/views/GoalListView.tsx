@@ -454,21 +454,28 @@ export default function GoalListView({ onNavigateToGoal, onAddGoal }: GoalListVi
     );
   }
 
+  // Calculate filter toggle height for absolute positioning
+  const FILTER_HEIGHT = 76; // 16px paddingTop + 44px toggle + 16px marginBottom
+
   return (
     <div style={{
+      position: 'relative',
       flex: 1,
-      display: 'flex',
-      flexDirection: 'column',
-      overflow: 'hidden',
+      height: '100%',
       backgroundColor: colors.background,
     }}>
-      {/* Active/Completed Toggle - matching mobile filterContainer */}
+      {/* Active/Completed Toggle - fixed at top */}
       <div style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
         paddingLeft: spacing.lg,
         paddingRight: spacing.lg,
         paddingTop: spacing.lg,
-        marginBottom: spacing.lg,
-        flexShrink: 0,
+        paddingBottom: spacing.lg,
+        backgroundColor: colors.background,
+        zIndex: 1,
       }}>
         <div style={{
           display: 'flex',
@@ -503,12 +510,15 @@ export default function GoalListView({ onNavigateToGoal, onAddGoal }: GoalListVi
         </div>
       </div>
 
-      {/* Scrollable content - matching mobile scrollContent */}
+      {/* Scrollable content - absolute positioned to fill remaining space */}
       <div style={{
-        flex: 1,
-        minHeight: 0,
+        position: 'absolute',
+        top: FILTER_HEIGHT,
+        left: 0,
+        right: 0,
+        bottom: 0,
         overflowY: 'auto',
-        padding: spacing.lg, // 16
+        padding: spacing.lg,
         paddingBottom: 32,
       }}>
         {/* Active Goals */}
