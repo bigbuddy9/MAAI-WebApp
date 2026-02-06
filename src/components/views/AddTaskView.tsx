@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useTasks } from '@/contexts/TaskContext';
 import { useGoals } from '@/contexts/GoalContext';
 import { getGoalColor } from '@/shared';
@@ -53,6 +53,58 @@ export default function AddTaskView({ onBack, createdAt }: AddTaskViewProps) {
   const [selectedGoal, setSelectedGoal] = useState<{ id: number; name: string; priority: number }>(FOUNDATIONS);
   const [showGoalPicker, setShowGoalPicker] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Pull-down-to-dismiss
+  const [pullOffset, setPullOffset] = useState(0);
+  const [isPulling, setIsPulling] = useState(false);
+  const [isDismissing, setIsDismissing] = useState(false);
+  const pullStartY = useRef(0);
+  const DISMISS_THRESHOLD = 120;
+
+  const handlePullStart = useCallback((clientY: number) => {
+    if (isDismissing) return;
+    setIsPulling(true);
+    pullStartY.current = clientY;
+    setPullOffset(0);
+  }, [isDismissing]);
+
+  const handlePullMove = useCallback((clientY: number) => {
+    if (!isPulling) return;
+    const delta = Math.max(0, clientY - pullStartY.current);
+    setPullOffset(delta);
+  }, [isPulling]);
+
+  const handlePullEnd = useCallback(() => {
+    if (!isPulling) return;
+    if (pullOffset >= DISMISS_THRESHOLD) {
+      setIsDismissing(true);
+      setIsPulling(false);
+      setTimeout(() => {
+        onBack?.();
+      }, 350);
+    } else {
+      setPullOffset(0);
+      setIsPulling(false);
+    }
+  }, [isPulling, pullOffset, onBack]);
+
+  useEffect(() => {
+    if (!isPulling) return;
+    const onMouseMove = (e: MouseEvent) => { e.preventDefault(); handlePullMove(e.clientY); };
+    const onMouseUp = () => handlePullEnd();
+    const onTouchMove = (e: TouchEvent) => { handlePullMove(e.touches[0].clientY); };
+    const onTouchEnd = () => handlePullEnd();
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
+    window.addEventListener('touchmove', onTouchMove);
+    window.addEventListener('touchend', onTouchEnd);
+    return () => {
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
+      window.removeEventListener('touchmove', onTouchMove);
+      window.removeEventListener('touchend', onTouchEnd);
+    };
+  }, [isPulling, handlePullMove, handlePullEnd]);
 
   const getRequiredDays = (freq: Frequency): number => {
     if (freq === 'daily') return 7;
@@ -118,9 +170,17 @@ export default function AddTaskView({ onBack, createdAt }: AddTaskViewProps) {
   const goalColor = selectedGoal ? getGoalColor(selectedGoal.priority) : getGoalColor(99);
 
   return (
-    <div style={styles.container}>
-      {/* Drag Handle */}
-      <div style={styles.dragHandle} />
+    <div style={{
+      ...styles.container,
+      transform: isDismissing ? 'translateY(100vh)' : pullOffset > 0 ? `translateY(${pullOffset}px)` : undefined,
+      transition: isDismissing ? 'transform 350ms ease-in' : isPulling ? 'none' : 'transform 200ms ease-out',
+    }}>
+      {/* Drag Handle — pull down to dismiss */}
+      <div
+        style={styles.dragHandle}
+        onMouseDown={(e) => { e.preventDefault(); handlePullStart(e.clientY); }}
+        onTouchStart={(e) => handlePullStart(e.touches[0].clientY)}
+      />
 
       {/* Header */}
       <div style={styles.header}>
@@ -435,18 +495,24 @@ export default function AddTaskView({ onBack, createdAt }: AddTaskViewProps) {
 
 const styles: Record<string, React.CSSProperties> = {
   container: {
+    display: 'flex',
+    flexDirection: 'column',
     flex: 1,
     backgroundColor: colors.elevated,
     minHeight: '100%',
+    overflow: 'hidden',
   },
   dragHandle: {
     width: 40,
     height: 4,
     backgroundColor: colors.borderSubtle,
     borderRadius: 2,
-    margin: '0 auto',
-    marginTop: 12,
-    marginBottom: spacing.lg,
+    alignSelf: 'center',
+    margin: '0 auto 4px',
+    padding: '14px 40px',
+    backgroundClip: 'content-box',
+    cursor: 'grab',
+    flexShrink: 0,
   },
   header: {
     display: 'flex',
@@ -456,6 +522,9 @@ const styles: Record<string, React.CSSProperties> = {
     paddingLeft: spacing.lg,
     paddingRight: spacing.lg,
     marginBottom: spacing.xl,
+    position: 'relative',
+    zIndex: 10,
+    flexShrink: 0,
   },
   headerTitle: {
     fontSize: 20,

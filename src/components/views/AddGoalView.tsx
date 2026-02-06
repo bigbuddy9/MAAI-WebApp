@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useGoals } from '@/contexts/GoalContext';
 import { getGoalColor } from '@/shared';
 
@@ -238,6 +238,58 @@ export default function AddGoalView({ onBack }: AddGoalViewProps) {
   const [datePickerMode, setDatePickerMode] = useState<'target' | 'milestone'>('target');
   const [tempDate, setTempDate] = useState(new Date());
 
+  // Pull-down-to-dismiss
+  const [pullOffset, setPullOffset] = useState(0);
+  const [isPulling, setIsPulling] = useState(false);
+  const [isDismissing, setIsDismissing] = useState(false);
+  const pullStartY = useRef(0);
+  const DISMISS_THRESHOLD = 120;
+
+  const handlePullStart = useCallback((clientY: number) => {
+    if (isDismissing) return;
+    setIsPulling(true);
+    pullStartY.current = clientY;
+    setPullOffset(0);
+  }, [isDismissing]);
+
+  const handlePullMove = useCallback((clientY: number) => {
+    if (!isPulling) return;
+    const delta = Math.max(0, clientY - pullStartY.current);
+    setPullOffset(delta);
+  }, [isPulling]);
+
+  const handlePullEnd = useCallback(() => {
+    if (!isPulling) return;
+    if (pullOffset >= DISMISS_THRESHOLD) {
+      setIsDismissing(true);
+      setIsPulling(false);
+      setTimeout(() => {
+        onBack?.();
+      }, 350);
+    } else {
+      setPullOffset(0);
+      setIsPulling(false);
+    }
+  }, [isPulling, pullOffset, onBack]);
+
+  useEffect(() => {
+    if (!isPulling) return;
+    const onMouseMove = (e: MouseEvent) => { e.preventDefault(); handlePullMove(e.clientY); };
+    const onMouseUp = () => handlePullEnd();
+    const onTouchMove = (e: TouchEvent) => { handlePullMove(e.touches[0].clientY); };
+    const onTouchEnd = () => handlePullEnd();
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
+    window.addEventListener('touchmove', onTouchMove);
+    window.addEventListener('touchend', onTouchEnd);
+    return () => {
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
+      window.removeEventListener('touchmove', onTouchMove);
+      window.removeEventListener('touchend', onTouchEnd);
+    };
+  }, [isPulling, handlePullMove, handlePullEnd]);
+
   const openDatePicker = (mode: 'target' | 'milestone') => {
     setDatePickerMode(mode);
     if (mode === 'target' && targetDate) {
@@ -346,9 +398,17 @@ export default function AddGoalView({ onBack }: AddGoalViewProps) {
   };
 
   return (
-    <div className="addgoal-view" style={styles.container}>
-      {/* Drag Handle */}
-      <div style={styles.dragHandleWrapper}>
+    <div className="addgoal-view" style={{
+      ...styles.container,
+      transform: isDismissing ? 'translateY(100vh)' : pullOffset > 0 ? `translateY(${pullOffset}px)` : undefined,
+      transition: isDismissing ? 'transform 350ms ease-in' : isPulling ? 'none' : 'transform 200ms ease-out',
+    }}>
+      {/* Drag Handle — pull down to dismiss */}
+      <div
+        style={styles.dragHandleWrapper}
+        onMouseDown={(e) => { e.preventDefault(); handlePullStart(e.clientY); }}
+        onTouchStart={(e) => handlePullStart(e.touches[0].clientY)}
+      >
         <div style={styles.dragHandle} />
       </div>
 
@@ -636,15 +696,18 @@ const styles: Record<string, React.CSSProperties> = {
   // Drag Handle
   dragHandleWrapper: {
     display: 'flex',
+    alignItems: 'center',
     justifyContent: 'center',
-    paddingTop: 8,
-    paddingBottom: 4,
+    paddingTop: 14,
+    paddingBottom: 14,
+    cursor: 'grab',
+    flexShrink: 0,
   },
   dragHandle: {
     width: 36,
     height: 4,
     borderRadius: 2,
-    backgroundColor: colors.borderLight,
+    backgroundColor: colors.borderSubtle,
   },
 
   // Header
@@ -657,6 +720,9 @@ const styles: Record<string, React.CSSProperties> = {
     paddingRight: spacing.lg,
     paddingTop: spacing.md,
     paddingBottom: spacing.md,
+    position: 'relative' as const,
+    zIndex: 10,
+    flexShrink: 0,
   },
   cancelButton: {
     color: colors.textMuted,
@@ -665,7 +731,7 @@ const styles: Record<string, React.CSSProperties> = {
     background: 'none',
     border: 'none',
     cursor: 'pointer',
-    padding: 0,
+    padding: 8,
   },
   headerTitle: {
     color: colors.textPrimary,
