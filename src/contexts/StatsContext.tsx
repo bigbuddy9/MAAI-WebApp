@@ -85,7 +85,10 @@ export function StatsProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     loadData();
-  }, [userId, tasks, loadData]);
+    // Note: intentionally NOT including 'tasks' as dependency
+    // loadData doesn't use tasks, and including it causes race conditions
+    // where optimistic updates get overwritten by stale DB data
+  }, [userId, loadData]);
 
   const refreshStats = useCallback(async () => {
     await loadData();
