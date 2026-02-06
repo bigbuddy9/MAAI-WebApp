@@ -177,10 +177,12 @@ export default function AddTaskView({ onBack, createdAt }: AddTaskViewProps) {
     }}>
       {/* Drag Handle — pull down to dismiss */}
       <div
-        style={styles.dragHandle}
+        style={styles.dragHandleWrapper}
         onMouseDown={(e) => { e.preventDefault(); handlePullStart(e.clientY); }}
         onTouchStart={(e) => handlePullStart(e.touches[0].clientY)}
-      />
+      >
+        <div style={styles.dragHandle} />
+      </div>
 
       {/* Header */}
       <div style={styles.header}>
@@ -502,17 +504,20 @@ const styles: Record<string, React.CSSProperties> = {
     minHeight: '100%',
     overflow: 'hidden',
   },
-  dragHandle: {
-    width: 40,
-    height: 4,
-    backgroundColor: colors.borderSubtle,
-    borderRadius: 2,
-    alignSelf: 'center',
-    margin: '0 auto 4px',
-    padding: '14px 40px',
-    backgroundClip: 'content-box',
+  dragHandleWrapper: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingTop: 14,
+    paddingBottom: 14,
     cursor: 'grab',
     flexShrink: 0,
+  },
+  dragHandle: {
+    width: 36,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: colors.borderSubtle,
   },
   header: {
     display: 'flex',

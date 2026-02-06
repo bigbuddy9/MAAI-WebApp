@@ -535,14 +535,13 @@ export default function GoalDetailView({ goalId, onBack, onNavigateToTask, onEdi
       transition: isDismissing ? 'transform 350ms ease-in' : isPulling ? 'none' : 'transform 200ms ease-out',
     }}>
       <div style={styles.modalSheet}>
-        {/* Pull indicator / drag handle — pull down to dismiss */}
+        {/* Drag Handle — pull down to dismiss */}
         <div
-          style={{ ...styles.pullIndicatorContainer, cursor: 'grab' }}
-          onClick={() => onBack?.()}
+          style={styles.dragHandleWrapper}
           onMouseDown={(e) => { e.preventDefault(); handlePullStart(e.clientY); }}
           onTouchStart={(e) => handlePullStart(e.touches[0].clientY)}
         >
-          <div style={styles.pullIndicator} />
+          <div style={styles.dragHandle} />
         </div>
 
         <div style={styles.scrollView}>
@@ -872,19 +871,20 @@ const styles: Record<string, React.CSSProperties> = {
     display: 'flex',
     flexDirection: 'column',
   },
-  pullIndicatorContainer: {
+  dragHandleWrapper: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     paddingTop: 14,
     paddingBottom: 14,
-    cursor: 'pointer',
+    cursor: 'grab',
+    flexShrink: 0,
   },
-  pullIndicator: {
+  dragHandle: {
     width: 36,
     height: 4,
-    backgroundColor: '#333333',
     borderRadius: 2,
+    backgroundColor: '#333333',
   },
   scrollView: {
     flex: 1,

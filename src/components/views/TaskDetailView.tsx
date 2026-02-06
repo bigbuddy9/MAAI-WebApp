@@ -235,10 +235,12 @@ export default function TaskDetailView({ taskId, onBack, onNavigateToHistory }: 
     }}>
       {/* Drag Handle — pull down to dismiss */}
       <div
-        style={{ ...s.dragHandle, cursor: 'grab' }}
+        style={s.dragHandleWrapper}
         onMouseDown={(e) => { e.preventDefault(); handlePullStart(e.clientY); }}
         onTouchStart={(e) => handlePullStart(e.touches[0].clientY)}
-      />
+      >
+        <div style={s.dragHandle} />
+      </div>
 
       {/* Header */}
       <div style={s.header}>
@@ -922,15 +924,20 @@ const s: Record<string, React.CSSProperties> = {
     height: '100%',
     overflow: 'hidden',
   },
+  dragHandleWrapper: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingTop: 14,
+    paddingBottom: 14,
+    cursor: 'grab',
+    flexShrink: 0,
+  },
   dragHandle: {
-    width: 40,
+    width: 36,
     height: 4,
-    backgroundColor: colors.borderSubtle,
     borderRadius: 2,
-    alignSelf: 'center',
-    margin: '0 auto 4px',
-    padding: '14px 40px',
-    backgroundClip: 'content-box',
+    backgroundColor: colors.borderSubtle,
   },
   header: {
     display: 'flex',
