@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo, useRef, useId, useCallback } from 'react'
 import { useTasks } from '@/contexts/TaskContext';
 import { useGoals } from '@/contexts/GoalContext';
 import { useStats } from '@/contexts/StatsContext';
-import { getGoalColor } from '@/shared';
+import { getGoalColor, formatDate } from '@/shared';
 import ModalPortal from '@/components/ui/ModalPortal';
 
 type TabMode = 'edit' | 'history';
@@ -575,13 +575,6 @@ export default function TaskDetailView({ taskId, onBack, onNavigateToHistory }: 
 const DOT_SIZE = 28;
 const DOT_GAP = 4;
 
-function formatDateStr(date: Date): string {
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, '0');
-  const d = String(date.getDate()).padStart(2, '0');
-  return `${y}-${m}-${d}`;
-}
-
 interface WeekData {
   days: { date: Date; status: 'completed' | 'missed' | 'not-scheduled' | 'future' }[];
   month: string;
@@ -700,7 +693,7 @@ function WebTaskHistoryGrid({
         dayDate.setDate(current.getDate() + day);
 
         const dayOfWeek = (dayDate.getDay() + 6) % 7;
-        const dateStr = formatDateStr(dayDate);
+        const dateStr = formatDate(dayDate);
         const isFuture = dayDate > today;
         const isBeforeStart = dayDate < startDate;
         const isScheduled = selectedDays.includes(dayOfWeek);
@@ -857,7 +850,7 @@ function WebTaskHistoryGrid({
                 {week.days.map((day, dayIndex) => (
                   <div
                     key={dayIndex}
-                    title={`${formatDateStr(day.date)}: ${day.status === 'completed' ? 'Completed' : day.status === 'missed' ? 'Missed' : day.status}`}
+                    title={`${formatDate(day.date)}: ${day.status === 'completed' ? 'Completed' : day.status === 'missed' ? 'Missed' : day.status}`}
                     style={{
                       width: DOT_SIZE,
                       height: DOT_SIZE,
