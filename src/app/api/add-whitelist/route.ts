@@ -18,10 +18,21 @@ export async function GET(request: Request) {
 
   const supabase = createClient(supabaseUrl, serviceRoleKey);
 
-  // Insert into whitelist (ignore if already exists)
+  // Check if email already exists
+  const { data: existing } = await supabase
+    .from('subscription_whitelist')
+    .select('email')
+    .eq('email', email.toLowerCase())
+    .limit(1);
+
+  if (existing && existing.length > 0) {
+    return NextResponse.json({ success: true, email: email.toLowerCase(), message: 'Already whitelisted' });
+  }
+
+  // Insert into whitelist
   const { data, error } = await supabase
     .from('subscription_whitelist')
-    .upsert({ email: email.toLowerCase() }, { onConflict: 'email' })
+    .insert({ email: email.toLowerCase() })
     .select();
 
   if (error) {
