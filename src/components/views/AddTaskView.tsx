@@ -43,6 +43,13 @@ export default function AddTaskView({ onBack, createdAt }: AddTaskViewProps) {
 
   const goals = allGoals.filter(g => !g.completed);
 
+  // Get the #1 priority goal (lowest priority number) or Foundations if no goals
+  const getDefaultGoal = () => {
+    if (goals.length === 0) return FOUNDATIONS;
+    const sorted = [...goals].sort((a, b) => a.priority - b.priority);
+    return sorted[0];
+  };
+
   const [taskName, setTaskName] = useState('');
   const [taskType, setTaskType] = useState<TaskType>('checkbox');
   const [target, setTarget] = useState('');
@@ -53,6 +60,16 @@ export default function AddTaskView({ onBack, createdAt }: AddTaskViewProps) {
   const [selectedGoal, setSelectedGoal] = useState<{ id: number; name: string; priority: number }>(FOUNDATIONS);
   const [showGoalPicker, setShowGoalPicker] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [hasSetInitialGoal, setHasSetInitialGoal] = useState(false);
+
+  // Set default goal to #1 priority goal when goals load
+  useEffect(() => {
+    if (!hasSetInitialGoal && goals.length > 0) {
+      const defaultGoal = getDefaultGoal();
+      setSelectedGoal(defaultGoal);
+      setHasSetInitialGoal(true);
+    }
+  }, [goals, hasSetInitialGoal]);
 
   // Pull-down-to-dismiss
   const [pullOffset, setPullOffset] = useState(0);
