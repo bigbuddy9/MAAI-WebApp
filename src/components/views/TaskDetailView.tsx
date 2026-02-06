@@ -156,11 +156,6 @@ export default function TaskDetailView({ taskId, onBack, onNavigateToHistory }: 
     }
   });
 
-  // Debug: log completion data (remove after debugging)
-  console.log('[TaskDetailView] taskId:', taskId, 'typeof:', typeof taskId, 'numericTaskId:', numericTaskId);
-  console.log('[TaskDetailView] total completions:', completions.length, 'completions for this task:', completions.filter(c => Number(c.taskId) === numericTaskId));
-  console.log('[TaskDetailView] built history:', completionHistory);
-
   const getRequiredDays = (freq: Frequency): number => {
     if (freq === 'daily') return 7;
     return parseInt(freq.replace('x', ''), 10);
@@ -669,13 +664,6 @@ function WebTaskHistoryGrid({
     const history = completionHistory || {};
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const todayStr = formatDate(today);
-
-    // Debug: log what the grid receives
-    console.log('[WebTaskHistoryGrid] received history:', history);
-    console.log('[WebTaskHistoryGrid] today dateStr:', todayStr);
-    console.log('[WebTaskHistoryGrid] history has today?', history[todayStr]);
-
     const weeksData: WeekData[] = [];
 
     const thirtyDaysAgo = new Date(today);
