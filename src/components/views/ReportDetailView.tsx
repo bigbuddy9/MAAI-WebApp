@@ -1212,6 +1212,7 @@ export default function ReportDetailView({ reportId, onBack }: ReportDetailViewP
         )}
 
         {/* Tracked Metrics */}
+        {(data as any).metrics && (data as any).metrics.length > 0 && (
         <div style={st.section}>
           <span style={st.sectionTitle}>TRACKED METRICS</span>
           <div style={st.metricsGrid}>
@@ -1221,8 +1222,8 @@ export default function ReportDetailView({ reportId, onBack }: ReportDetailViewP
                 const numericTarget = metric.target ? parseFloat(metric.target.replace(/[^0-9.]/g, '')) || 1 : 1;
                 const progressPercent = metric.target ? Math.min((numericValue / numericTarget) * 100, 100) : 0;
                 const exceeded = numericValue > numericTarget;
-                const progressColor = metric.hit ? colors.tier1.main : colors.tier4.main;
-                const glowColor = metric.hit ? 'rgba(74, 222, 128, 0.4)' : 'rgba(251, 146, 60, 0.3)';
+                const progressColor = metric.hit ? colors.tier1.main : colors.textMuted;
+                const glowColor = metric.hit ? 'rgba(74, 222, 128, 0.4)' : 'none';
 
                 return (
                   <div key={i} style={st.metricCard}>
@@ -1235,7 +1236,7 @@ export default function ReportDetailView({ reportId, onBack }: ReportDetailViewP
                             ...st.metricProgressFill,
                             width: `${progressPercent}%`,
                             backgroundColor: progressColor,
-                            boxShadow: progressPercent > 0 ? `0 0 8px ${glowColor}` : 'none',
+                            boxShadow: glowColor !== 'none' ? `0 0 8px ${glowColor}` : 'none',
                           }} />
                         </div>
                         <span style={{
@@ -1269,6 +1270,7 @@ export default function ReportDetailView({ reportId, onBack }: ReportDetailViewP
             )}
           </div>
         </div>
+        )}
       </div>
     </div>
   );
