@@ -1221,31 +1221,19 @@ export default function ReportDetailView({ reportId, onBack }: ReportDetailViewP
                 const numericValue = parseFloat(metric.value.replace(/[^0-9.]/g, '')) || 0;
                 const numericTarget = metric.target ? parseFloat(metric.target.replace(/[^0-9.]/g, '')) || 1 : 1;
                 const progressPercent = metric.target ? Math.min((numericValue / numericTarget) * 100, 100) : 0;
-                const exceeded = numericValue > numericTarget;
-                const tier = getTierByPercentage(progressPercent);
-                const progressColor = tier.main;
 
                 return (
                   <div key={i} style={st.metricCard}>
                     <span style={st.metricNameDaily}>{metric.name}</span>
-                    <span style={st.metricValueDaily}>{metric.value}</span>
+                    <ProgressRing
+                      percent={progressPercent}
+                      size={70}
+                      strokeWidth={5}
+                      showValue={true}
+                      customValue={metric.value}
+                    />
                     {metric.target && (
-                      <>
-                        <div style={st.metricProgressBar}>
-                          <div style={{
-                            ...st.metricProgressFill,
-                            width: `${progressPercent}%`,
-                            backgroundColor: progressColor,
-                            boxShadow: progressPercent > 0 ? `0 0 8px ${progressColor}66` : 'none',
-                          }} />
-                        </div>
-                        <span style={{
-                          ...st.metricTargetText,
-                          color: exceeded ? colors.tier1.main : colors.textMuted,
-                        }}>
-                          {exceeded ? `${metric.value} of ${metric.target}` : `of ${metric.target}`}
-                        </span>
-                      </>
+                      <span style={st.metricTargetText}>of {metric.target}</span>
                     )}
                   </div>
                 );
@@ -1706,13 +1694,14 @@ const st: Record<string, React.CSSProperties> = {
     backgroundColor: colors.card,
     border: `1px solid ${colors.border}`,
     borderRadius: borderRadius.lg,
-    padding: 16,
+    padding: 12,
+    paddingTop: 14,
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     boxSizing: 'border-box',
-    minHeight: 120,
+    minHeight: 150,
   },
   metricCardWide: {
     width: 'calc(50% - 5px)',
@@ -1764,9 +1753,10 @@ const st: Record<string, React.CSSProperties> = {
     transition: 'width 0.3s ease',
   },
   metricTargetText: {
-    fontSize: 12,
+    fontSize: 13,
     color: colors.textMuted,
     textAlign: 'center',
+    marginTop: -6,
   },
   metricNameTop: {
     fontSize: 11,
