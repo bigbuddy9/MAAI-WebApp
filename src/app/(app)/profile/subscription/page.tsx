@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import ProfileSubPageWrapper from '@/components/layout/ProfileSubPageWrapper';
 
@@ -68,27 +69,32 @@ export default function SubscriptionPage() {
       <h1 style={s.pageTitle}>Subscription</h1>
 
       <div style={s.planCard}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
-          <div style={s.planName}>MyAccountableAI</div>
-          {!whitelisted && (
-            <div style={{ ...s.statusBadge, backgroundColor: `${getStatusColor()}20`, borderColor: `${getStatusColor()}40` }}>
-              <span style={{ ...s.statusBadgeText, color: getStatusColor() }}>{getStatusLabel()}</span>
+        <div style={s.planCardInner}>
+          <div style={s.planCardLeft}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+              <div style={s.planName}>MyAccountableAI</div>
+              {!whitelisted && (
+                <div style={{ ...s.statusBadge, backgroundColor: `${getStatusColor()}20`, borderColor: `${getStatusColor()}40` }}>
+                  <span style={{ ...s.statusBadgeText, color: getStatusColor() }}>{getStatusLabel()}</span>
+                </div>
+              )}
             </div>
-          )}
-        </div>
-        {daysRemaining !== null && (
-          <div style={s.planStatus}>
-            {status === 'trialing'
-              ? `${daysRemaining} day${daysRemaining === 1 ? '' : 's'} left in trial`
-              : cancelAt
-                ? `Cancels in ${daysRemaining} day${daysRemaining === 1 ? '' : 's'}`
-                : `Renews in ${daysRemaining} day${daysRemaining === 1 ? '' : 's'}`
-            }
+            {daysRemaining !== null && (
+              <div style={s.planStatus}>
+                {status === 'trialing'
+                  ? `${daysRemaining} day${daysRemaining === 1 ? '' : 's'} left in trial`
+                  : cancelAt
+                    ? `Cancels in ${daysRemaining} day${daysRemaining === 1 ? '' : 's'}`
+                    : `Renews in ${daysRemaining} day${daysRemaining === 1 ? '' : 's'}`
+                }
+              </div>
+            )}
+            {whitelisted && (
+              <div style={s.planStatus}>Lifetime access</div>
+            )}
           </div>
-        )}
-        {whitelisted && (
-          <div style={s.planStatus}>Lifetime access</div>
-        )}
+          <Image src="/logo-icon.png" alt="" width={48} height={48} style={{ opacity: 0.9 }} />
+        </div>
       </div>
 
       <p style={s.helperText}>
@@ -131,11 +137,19 @@ const s: Record<string, React.CSSProperties> = {
     letterSpacing: -0.5,
   },
   planCard: {
-    backgroundColor: colors.card,
+    backgroundColor: '#000000',
     border: `1px solid ${colors.border}`,
     borderRadius: 16,
     padding: 24,
     marginBottom: 40,
+  },
+  planCardInner: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  planCardLeft: {
+    flex: 1,
   },
   planName: {
     fontSize: 22,
