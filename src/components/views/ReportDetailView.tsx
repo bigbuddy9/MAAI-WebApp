@@ -1216,17 +1216,34 @@ export default function ReportDetailView({ reportId, onBack }: ReportDetailViewP
           <span style={st.sectionTitle}>TRACKED METRICS</span>
           <div style={st.metricsGrid}>
             {type === 'daily' ? (
-              (data as any).metrics.map((metric: { name: string; value: string; target: string | null; hit: boolean }, i: number) => (
-                <div key={i} style={st.metricCard}>
-                  <span style={st.metricName}>{metric.name}</span>
-                  <span style={st.metricValue}>{metric.value}</span>
-                  {metric.target && (
-                    <span style={{ ...st.metricChange, color: metric.hit ? colors.tier1.main : colors.tier4.main }}>
-                      {metric.hit ? '\u2713' : '\u2717'} Target: {metric.target}
-                    </span>
-                  )}
-                </div>
-              ))
+              (data as any).metrics.map((metric: { name: string; value: string; target: string | null; hit: boolean }, i: number) => {
+                const numericValue = parseFloat(metric.value.replace(/[^0-9.]/g, '')) || 0;
+                const numericTarget = metric.target ? parseFloat(metric.target.replace(/[^0-9.]/g, '')) || 1 : 1;
+                const progressPercent = metric.target ? Math.min((numericValue / numericTarget) * 100, 100) : 100;
+                const progressColor = metric.hit ? colors.tier1.main : colors.tier4.main;
+
+                return (
+                  <div key={i} style={st.metricCard}>
+                    <span style={st.metricNameDaily}>{metric.name}</span>
+                    <span style={{
+                      ...st.metricValueDaily,
+                      color: metric.hit ? colors.tier1.main : colors.textPrimary,
+                    }}>{metric.value}</span>
+                    {metric.target && (
+                      <>
+                        <div style={st.metricProgressBar}>
+                          <div style={{
+                            ...st.metricProgressFill,
+                            width: `${progressPercent}%`,
+                            backgroundColor: progressColor,
+                          }} />
+                        </div>
+                        <span style={st.metricTargetText}>of {metric.target}</span>
+                      </>
+                    )}
+                  </div>
+                );
+              })
             ) : (
               (data as any).metrics.map((metric: { name: string; avg: string; total: string }, i: number) => (
                 <div key={i} style={st.metricCardWide}>
@@ -1682,11 +1699,13 @@ const st: Record<string, React.CSSProperties> = {
     backgroundColor: colors.card,
     border: `1px solid ${colors.border}`,
     borderRadius: borderRadius.lg,
-    padding: 14,
+    padding: 16,
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
+    justifyContent: 'center',
     boxSizing: 'border-box',
+    minHeight: 120,
   },
   metricCardWide: {
     width: 'calc(50% - 5px)',
@@ -1703,6 +1722,40 @@ const st: Record<string, React.CSSProperties> = {
     fontSize: 12,
     color: colors.textMuted,
     marginBottom: 8,
+  },
+  metricNameDaily: {
+    fontSize: 11,
+    fontWeight: 600,
+    color: colors.textMuted,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  metricValueDaily: {
+    fontSize: 32,
+    fontWeight: 700,
+    color: colors.textPrimary,
+    textAlign: 'center',
+    marginBottom: 10,
+  },
+  metricProgressBar: {
+    width: '100%',
+    height: 4,
+    backgroundColor: colors.border,
+    borderRadius: 2,
+    overflow: 'hidden',
+    marginBottom: 8,
+  },
+  metricProgressFill: {
+    height: '100%',
+    borderRadius: 2,
+    transition: 'width 0.3s ease',
+  },
+  metricTargetText: {
+    fontSize: 12,
+    color: colors.textMuted,
+    textAlign: 'center',
   },
   metricNameTop: {
     fontSize: 11,
