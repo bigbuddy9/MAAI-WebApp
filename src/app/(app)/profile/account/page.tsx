@@ -18,12 +18,15 @@ const colors = {
   cyan: '#00FFFF',
 };
 
+type EditField = 'name' | 'age' | null;
+
 export default function AccountPage() {
   const router = useRouter();
   const { user, signOut } = useAuth();
   const [name, setName] = useState('');
   const [age, setAge] = useState('');
-  const [isEditing, setIsEditing] = useState(false);
+  const [editingField, setEditingField] = useState<EditField>(null);
+  const [editValue, setEditValue] = useState('');
   const [isSaving, setIsSaving] = useState(false);
 
   const account = {
@@ -37,12 +40,12 @@ export default function AccountPage() {
   useEffect(() => {
     const fetchProfile = async () => {
       if (!user?.id) return;
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('profiles')
         .select('display_name, age')
         .eq('id', user.id)
         .single();
-      if (data) {
+      if (data && !error) {
         setName(data.display_name || '');
         setAge(data.age?.toString() || '');
       }
@@ -50,21 +53,49 @@ export default function AccountPage() {
     fetchProfile();
   }, [user?.id]);
 
+  const openEdit = (field: EditField) => {
+    if (field === 'name') {
+      setEditValue(name);
+    } else if (field === 'age') {
+      setEditValue(age);
+    }
+    setEditingField(field);
+  };
+
   const handleSave = async () => {
-    if (!user?.id) return;
+    if (!user?.id || !editingField) return;
     setIsSaving(true);
     try {
-      const updateData: { display_name: string; age?: number } = {
-        display_name: name,
-      };
-      if (age && !isNaN(parseInt(age))) {
-        updateData.age = parseInt(age);
+      let updateData: { display_name?: string; age?: number | null } = {};
+
+      if (editingField === 'name') {
+        updateData.display_name = editValue;
+      } else if (editingField === 'age') {
+        if (editValue && !isNaN(parseInt(editValue))) {
+          updateData.age = parseInt(editValue);
+        } else {
+          updateData.age = null;
+        }
       }
-      await supabase
+
+      const { error } = await supabase
         .from('profiles')
         .update(updateData)
         .eq('id', user.id);
-      setIsEditing(false);
+
+      if (error) {
+        console.error('Save error:', error);
+        alert('Failed to save. Please try again.');
+        return;
+      }
+
+      // Update local state on success
+      if (editingField === 'name') {
+        setName(editValue);
+      } else if (editingField === 'age') {
+        setAge(editValue);
+      }
+      setEditingField(null);
     } finally {
       setIsSaving(false);
     }
@@ -95,58 +126,34 @@ export default function AccountPage() {
 
   return (
     <ProfileSubPageWrapper>
-      <div style={s.headerRow}>
-        <h1 style={s.pageTitle}>Account Info</h1>
-        {!isEditing ? (
-          <button style={s.editBtn} onClick={() => setIsEditing(true)}>
-            Edit
-          </button>
-        ) : (
-          <button
-            style={{ ...s.editBtn, opacity: isSaving ? 0.6 : 1 }}
-            onClick={handleSave}
-            disabled={isSaving}
-          >
-            {isSaving ? 'Saving...' : 'Save'}
-          </button>
-        )}
-      </div>
+      <h1 style={s.pageTitle}>Account Info</h1>
 
       <div style={s.infoCard}>
-        <div style={s.infoRow}>
-          <span style={s.infoLabel}>Name</span>
-          {isEditing ? (
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Enter your name"
-              style={s.input}
-            />
-          ) : (
+        {/* Name - editable */}
+        <button style={s.editableRow} onClick={() => openEdit('name')}>
+          <div style={s.rowContent}>
+            <span style={s.infoLabel}>Name</span>
             <span style={s.infoValue}>{name || <span style={s.emptyValue}>Not set</span>}</span>
-          )}
-        </div>
-        <div style={s.infoRow}>
-          <span style={s.infoLabel}>Age</span>
-          {isEditing ? (
-            <input
-              type="number"
-              value={age}
-              onChange={(e) => setAge(e.target.value)}
-              placeholder="Enter your age"
-              style={s.input}
-              min="1"
-              max="120"
-            />
-          ) : (
+          </div>
+          <span style={s.rowArrow}>{'\u203A'}</span>
+        </button>
+
+        {/* Age - editable */}
+        <button style={s.editableRow} onClick={() => openEdit('age')}>
+          <div style={s.rowContent}>
+            <span style={s.infoLabel}>Age</span>
             <span style={s.infoValue}>{age || <span style={s.emptyValue}>Not set</span>}</span>
-          )}
-        </div>
+          </div>
+          <span style={s.rowArrow}>{'\u203A'}</span>
+        </button>
+
+        {/* Email - not editable */}
         <div style={s.infoRow}>
           <span style={s.infoLabel}>Email</span>
           <span style={s.infoValue}>{account.email}</span>
         </div>
+
+        {/* Member Since - not editable */}
         <div style={{ ...s.infoRow, borderBottom: 'none' }}>
           <span style={s.infoLabel}>Member Since</span>
           <span style={s.infoValue}>{account.memberSince}</span>
@@ -172,51 +179,51 @@ export default function AccountPage() {
       <p style={s.warningText}>
         Deleting your account will permanently remove all your data including goals, tasks, and progress history.
       </p>
+
+      {/* Edit Modal */}
+      {editingField && (
+        <div style={s.overlay} onClick={() => setEditingField(null)}>
+          <div style={s.modal} onClick={(e) => e.stopPropagation()}>
+            <h2 style={s.modalTitle}>
+              Edit {editingField === 'name' ? 'Name' : 'Age'}
+            </h2>
+            <input
+              type={editingField === 'age' ? 'number' : 'text'}
+              value={editValue}
+              onChange={(e) => setEditValue(e.target.value)}
+              placeholder={editingField === 'name' ? 'Enter your name' : 'Enter your age'}
+              style={s.input}
+              autoFocus
+              min={editingField === 'age' ? '1' : undefined}
+              max={editingField === 'age' ? '120' : undefined}
+            />
+            <div style={s.modalButtons}>
+              <button style={s.cancelBtn} onClick={() => setEditingField(null)}>
+                Cancel
+              </button>
+              <button
+                style={{ ...s.saveBtn, opacity: isSaving ? 0.6 : 1 }}
+                onClick={handleSave}
+                disabled={isSaving}
+              >
+                {isSaving ? 'Saving...' : 'Save'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </ProfileSubPageWrapper>
   );
 }
 
 const s: Record<string, React.CSSProperties> = {
-  headerRow: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 32,
-  },
   pageTitle: {
     fontSize: 32,
     fontWeight: 700,
     color: colors.textPrimary,
-    marginBottom: 0,
+    marginBottom: 32,
     marginTop: 0,
     letterSpacing: -0.5,
-  },
-  editBtn: {
-    background: 'none',
-    border: `1px solid ${colors.border}`,
-    borderRadius: 8,
-    padding: '8px 16px',
-    color: colors.cyan,
-    fontSize: 14,
-    fontWeight: 500,
-    cursor: 'pointer',
-  },
-  input: {
-    width: '100%',
-    background: colors.background,
-    border: `1px solid ${colors.border}`,
-    borderRadius: 8,
-    padding: '10px 12px',
-    color: colors.textPrimary,
-    fontSize: 16,
-    fontWeight: 500,
-    outline: 'none',
-    marginTop: 4,
-    boxSizing: 'border-box' as const,
-  },
-  emptyValue: {
-    color: colors.textFaint,
-    fontStyle: 'italic' as const,
   },
   infoCard: {
     backgroundColor: colors.card,
@@ -224,6 +231,29 @@ const s: Record<string, React.CSSProperties> = {
     borderRadius: 16,
     overflow: 'hidden',
     marginBottom: 32,
+  },
+  editableRow: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: '18px 20px',
+    width: '100%',
+    background: 'none',
+    border: 'none',
+    borderBottom: `1px solid ${colors.border}`,
+    cursor: 'pointer',
+    boxSizing: 'border-box' as const,
+    textAlign: 'left' as const,
+  },
+  rowContent: {
+    display: 'flex',
+    flexDirection: 'column' as const,
+    gap: 4,
+  },
+  rowArrow: {
+    fontSize: 20,
+    color: colors.borderSubtle,
+    fontWeight: 300,
   },
   infoRow: {
     padding: '18px 20px',
@@ -234,13 +264,17 @@ const s: Record<string, React.CSSProperties> = {
     color: colors.textMuted,
     textTransform: 'uppercase' as const,
     letterSpacing: 0.5,
-    marginBottom: 6,
     display: 'block',
   },
   infoValue: {
     fontSize: 16,
     fontWeight: 500,
     color: colors.textPrimary,
+    marginTop: 4,
+  },
+  emptyValue: {
+    color: colors.textFaint,
+    fontStyle: 'italic' as const,
   },
   sectionTitle: {
     fontSize: 13,
@@ -291,5 +325,72 @@ const s: Record<string, React.CSSProperties> = {
     color: colors.textFaint,
     marginTop: 16,
     lineHeight: '20px',
+  },
+  // Modal styles
+  overlay: {
+    position: 'fixed' as const,
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    zIndex: 100,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  modal: {
+    backgroundColor: colors.card,
+    border: `1px solid ${colors.border}`,
+    borderRadius: 16,
+    padding: 24,
+    width: '90%',
+    maxWidth: 320,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 600,
+    color: colors.textPrimary,
+    marginBottom: 20,
+    marginTop: 0,
+  },
+  input: {
+    width: '100%',
+    background: colors.background,
+    border: `1px solid ${colors.border}`,
+    borderRadius: 8,
+    padding: '12px 14px',
+    color: colors.textPrimary,
+    fontSize: 16,
+    fontWeight: 500,
+    outline: 'none',
+    boxSizing: 'border-box' as const,
+  },
+  modalButtons: {
+    display: 'flex',
+    gap: 12,
+    marginTop: 20,
+  },
+  cancelBtn: {
+    flex: 1,
+    padding: '12px 16px',
+    background: 'none',
+    border: `1px solid ${colors.border}`,
+    borderRadius: 8,
+    color: colors.textPrimary,
+    fontSize: 14,
+    fontWeight: 500,
+    cursor: 'pointer',
+  },
+  saveBtn: {
+    flex: 1,
+    padding: '12px 16px',
+    background: colors.textPrimary,
+    border: 'none',
+    borderRadius: 8,
+    color: colors.background,
+    fontSize: 14,
+    fontWeight: 600,
+    cursor: 'pointer',
   },
 };
