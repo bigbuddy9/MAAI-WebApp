@@ -250,11 +250,15 @@ export default function ReportDetailView({ reportId, onBack }: ReportDetailViewP
       const hasMonthHistoricalData = monthScoresBeforeToday.some(d => d.tasksScheduled > 0);
       const monthAvg = calc.calculatePeriodScore(monthScores);
 
-      const allScoresSorted = allTimeDailyScores
-        .filter(d => d.tasksScheduled > 0)
+      // Only count days BEFORE today for ranking (today isn't complete yet)
+      const reportDateStr = calc.formatDate(dateObj);
+      const historicalScores = allTimeDailyScores
+        .filter(d => d.tasksScheduled > 0 && d.date < reportDateStr)
         .map(d => d.score)
         .sort((a, b) => b - a);
-      const dayRank = allScoresSorted.findIndex(s => s <= ds.score) + 1;
+      const dayRank = historicalScores.length > 0
+        ? historicalScores.findIndex(s => s <= ds.score) + 1
+        : 0;
 
       const streakAsOf = calc.calculateStreakAsOfDate(
         tasks.map(t => ({ ...t, goalPriority: t.goalPriority ?? 99 })),
@@ -313,7 +317,7 @@ export default function ReportDetailView({ reportId, onBack }: ReportDetailViewP
           vsYesterday: calc.calculateComparison(ds.score, yesterdayScore.score, hasYesterdayData),
           vsWeekAvg: calc.calculateComparison(ds.score, weekAvg, hasWeekHistoricalData),
           vsMonthAvg: calc.calculateComparison(ds.score, monthAvg, hasMonthHistoricalData),
-          dayRank: allScoresSorted.length > 1 ? { rank: dayRank || 1, total: allScoresSorted.length } : null,
+          dayRank: historicalScores.length > 0 ? { rank: dayRank || 1, total: historicalScores.length + 1 } : null,
         },
         tasks: taskItems,
         breakdowns: { byImportance, byDifficulty, byGoal },
