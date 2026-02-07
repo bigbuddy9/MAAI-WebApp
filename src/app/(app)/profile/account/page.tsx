@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
@@ -14,17 +15,59 @@ const colors = {
   textFaint: '#404040',
   borderSubtle: '#333333',
   danger: '#E53935',
+  cyan: '#00FFFF',
 };
 
 export default function AccountPage() {
   const router = useRouter();
   const { user, signOut } = useAuth();
+  const [name, setName] = useState('');
+  const [age, setAge] = useState('');
+  const [isEditing, setIsEditing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   const account = {
     email: user?.email ?? 'Unknown',
     memberSince: user?.created_at
       ? new Date(user.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
       : 'Unknown',
+  };
+
+  // Fetch profile data on mount
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (!user?.id) return;
+      const { data } = await supabase
+        .from('profiles')
+        .select('display_name, age')
+        .eq('id', user.id)
+        .single();
+      if (data) {
+        setName(data.display_name || '');
+        setAge(data.age?.toString() || '');
+      }
+    };
+    fetchProfile();
+  }, [user?.id]);
+
+  const handleSave = async () => {
+    if (!user?.id) return;
+    setIsSaving(true);
+    try {
+      const updateData: { display_name: string; age?: number } = {
+        display_name: name,
+      };
+      if (age && !isNaN(parseInt(age))) {
+        updateData.age = parseInt(age);
+      }
+      await supabase
+        .from('profiles')
+        .update(updateData)
+        .eq('id', user.id);
+      setIsEditing(false);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleSignOut = async () => {
@@ -52,9 +95,54 @@ export default function AccountPage() {
 
   return (
     <ProfileSubPageWrapper>
-      <h1 style={s.pageTitle}>Account Info</h1>
+      <div style={s.headerRow}>
+        <h1 style={s.pageTitle}>Account Info</h1>
+        {!isEditing ? (
+          <button style={s.editBtn} onClick={() => setIsEditing(true)}>
+            Edit
+          </button>
+        ) : (
+          <button
+            style={{ ...s.editBtn, opacity: isSaving ? 0.6 : 1 }}
+            onClick={handleSave}
+            disabled={isSaving}
+          >
+            {isSaving ? 'Saving...' : 'Save'}
+          </button>
+        )}
+      </div>
 
       <div style={s.infoCard}>
+        <div style={s.infoRow}>
+          <span style={s.infoLabel}>Name</span>
+          {isEditing ? (
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Enter your name"
+              style={s.input}
+            />
+          ) : (
+            <span style={s.infoValue}>{name || <span style={s.emptyValue}>Not set</span>}</span>
+          )}
+        </div>
+        <div style={s.infoRow}>
+          <span style={s.infoLabel}>Age</span>
+          {isEditing ? (
+            <input
+              type="number"
+              value={age}
+              onChange={(e) => setAge(e.target.value)}
+              placeholder="Enter your age"
+              style={s.input}
+              min="1"
+              max="120"
+            />
+          ) : (
+            <span style={s.infoValue}>{age || <span style={s.emptyValue}>Not set</span>}</span>
+          )}
+        </div>
         <div style={s.infoRow}>
           <span style={s.infoLabel}>Email</span>
           <span style={s.infoValue}>{account.email}</span>
@@ -89,13 +177,46 @@ export default function AccountPage() {
 }
 
 const s: Record<string, React.CSSProperties> = {
+  headerRow: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 32,
+  },
   pageTitle: {
     fontSize: 32,
     fontWeight: 700,
     color: colors.textPrimary,
-    marginBottom: 32,
+    marginBottom: 0,
     marginTop: 0,
     letterSpacing: -0.5,
+  },
+  editBtn: {
+    background: 'none',
+    border: `1px solid ${colors.border}`,
+    borderRadius: 8,
+    padding: '8px 16px',
+    color: colors.cyan,
+    fontSize: 14,
+    fontWeight: 500,
+    cursor: 'pointer',
+  },
+  input: {
+    width: '100%',
+    background: colors.background,
+    border: `1px solid ${colors.border}`,
+    borderRadius: 8,
+    padding: '10px 12px',
+    color: colors.textPrimary,
+    fontSize: 16,
+    fontWeight: 500,
+    outline: 'none',
+    marginTop: 4,
+    boxSizing: 'border-box' as const,
+  },
+  emptyValue: {
+    color: colors.textFaint,
+    fontStyle: 'italic' as const,
   },
   infoCard: {
     backgroundColor: colors.card,
