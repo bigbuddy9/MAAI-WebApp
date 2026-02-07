@@ -244,6 +244,7 @@ export default function AddTaskView({ onBack, createdAt }: AddTaskViewProps) {
               placeholder="What do you need to do?"
               value={taskName}
               onChange={e => setTaskName(e.target.value)}
+              maxLength={50}
             />
           </div>
 

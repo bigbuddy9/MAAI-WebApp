@@ -305,6 +305,7 @@ export default function TaskDetailView({ taskId, onBack, onNavigateToHistory }: 
               placeholder="What do you need to do?"
               value={taskName}
               onChange={(e) => setTaskName(e.target.value)}
+              maxLength={50}
             />
           </div>
 
