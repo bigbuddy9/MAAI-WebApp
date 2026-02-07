@@ -1222,8 +1222,8 @@ export default function ReportDetailView({ reportId, onBack }: ReportDetailViewP
                 const numericTarget = metric.target ? parseFloat(metric.target.replace(/[^0-9.]/g, '')) || 1 : 1;
                 const progressPercent = metric.target ? Math.min((numericValue / numericTarget) * 100, 100) : 0;
                 const exceeded = numericValue > numericTarget;
-                const progressColor = metric.hit ? colors.tier1.main : colors.textMuted;
-                const glowColor = metric.hit ? 'rgba(74, 222, 128, 0.4)' : 'none';
+                const tier = getTierByPercentage(progressPercent);
+                const progressColor = tier.main;
 
                 return (
                   <div key={i} style={st.metricCard}>
@@ -1236,7 +1236,7 @@ export default function ReportDetailView({ reportId, onBack }: ReportDetailViewP
                             ...st.metricProgressFill,
                             width: `${progressPercent}%`,
                             backgroundColor: progressColor,
-                            boxShadow: glowColor !== 'none' ? `0 0 8px ${glowColor}` : 'none',
+                            boxShadow: progressPercent > 0 ? `0 0 8px ${progressColor}66` : 'none',
                           }} />
                         </div>
                         <span style={{
