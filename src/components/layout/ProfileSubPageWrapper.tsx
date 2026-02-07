@@ -3,7 +3,6 @@
 import { ReactNode, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { FloatingDots } from '@/components/ui/FloatingDots';
 
 interface ProfileSubPageWrapperProps {
   children: ReactNode;
@@ -22,10 +21,7 @@ export default function ProfileSubPageWrapper({ children }: ProfileSubPageWrappe
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <div style={s.pageWrapper}>
-      {/* Full screen floating dots background */}
-      <FloatingDots particleCount={150} side="full" />
-
+    <>
       {/* Centered panel */}
       <div style={s.contentWrapper}>
         <div style={s.panel}>
@@ -70,20 +66,11 @@ export default function ProfileSubPageWrapper({ children }: ProfileSubPageWrappe
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }
 
 const s: Record<string, React.CSSProperties> = {
-  pageWrapper: {
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: '#000000',
-    overflow: 'hidden',
-  },
   contentWrapper: {
     position: 'relative',
     zIndex: 1,

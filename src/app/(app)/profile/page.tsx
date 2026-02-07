@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { useAuth } from '@/contexts/AuthContext';
-import { FloatingDots } from '@/components/ui/FloatingDots';
 
 interface SettingsRowProps {
   label: string;
@@ -51,10 +50,7 @@ export default function ProfilePage() {
   };
 
   return (
-    <div style={s.pageWrapper}>
-      {/* Full screen floating dots background */}
-      <FloatingDots particleCount={150} side="full" />
-
+    <>
       {/* Navigation Menu Overlay */}
       {menuOpen && (
         <div style={s.menuOverlay} onClick={() => setMenuOpen(false)}>
@@ -119,20 +115,11 @@ export default function ProfilePage() {
           <p style={s.versionText}>VERSION 1.0.0</p>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 
 const s: Record<string, React.CSSProperties> = {
-  pageWrapper: {
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: '#000000',
-    overflow: 'hidden',
-  },
   panelHeader: {
     display: 'flex',
     alignItems: 'center',
