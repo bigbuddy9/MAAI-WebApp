@@ -1219,16 +1219,15 @@ export default function ReportDetailView({ reportId, onBack }: ReportDetailViewP
               (data as any).metrics.map((metric: { name: string; value: string; target: string | null; hit: boolean }, i: number) => {
                 const numericValue = parseFloat(metric.value.replace(/[^0-9.]/g, '')) || 0;
                 const numericTarget = metric.target ? parseFloat(metric.target.replace(/[^0-9.]/g, '')) || 1 : 1;
-                const progressPercent = metric.target ? Math.min((numericValue / numericTarget) * 100, 100) : 100;
+                const progressPercent = metric.target ? Math.min((numericValue / numericTarget) * 100, 100) : 0;
+                const exceeded = numericValue > numericTarget;
                 const progressColor = metric.hit ? colors.tier1.main : colors.tier4.main;
+                const glowColor = metric.hit ? 'rgba(74, 222, 128, 0.4)' : 'rgba(251, 146, 60, 0.3)';
 
                 return (
                   <div key={i} style={st.metricCard}>
                     <span style={st.metricNameDaily}>{metric.name}</span>
-                    <span style={{
-                      ...st.metricValueDaily,
-                      color: metric.hit ? colors.tier1.main : colors.textPrimary,
-                    }}>{metric.value}</span>
+                    <span style={st.metricValueDaily}>{metric.value}</span>
                     {metric.target && (
                       <>
                         <div style={st.metricProgressBar}>
@@ -1236,9 +1235,15 @@ export default function ReportDetailView({ reportId, onBack }: ReportDetailViewP
                             ...st.metricProgressFill,
                             width: `${progressPercent}%`,
                             backgroundColor: progressColor,
+                            boxShadow: progressPercent > 0 ? `0 0 8px ${glowColor}` : 'none',
                           }} />
                         </div>
-                        <span style={st.metricTargetText}>of {metric.target}</span>
+                        <span style={{
+                          ...st.metricTargetText,
+                          color: exceeded ? colors.tier1.main : colors.textMuted,
+                        }}>
+                          {exceeded ? `${metric.value} of ${metric.target}` : `of ${metric.target}`}
+                        </span>
                       </>
                     )}
                   </div>
@@ -1731,6 +1736,10 @@ const st: Record<string, React.CSSProperties> = {
     letterSpacing: 0.5,
     textAlign: 'center',
     marginBottom: 8,
+    width: '100%',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
   },
   metricValueDaily: {
     fontSize: 32,
