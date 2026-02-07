@@ -20,7 +20,7 @@ function Toggle({ value, onValueChange }: { value: boolean; onValueChange: (v: b
       style={{
         width: 51,
         height: 31,
-        backgroundColor: value ? colors.cyan : colors.border,
+        backgroundColor: value ? '#34C759' : colors.border,
         borderRadius: 16,
         padding: 2,
         border: 'none',
@@ -58,10 +58,6 @@ export default function SettingsPage() {
 
   const updatePref = (key: string, value: boolean) => {
     setPrefs(prev => ({ ...prev, [key]: value }));
-  };
-
-  const handleExportData = () => {
-    alert('Your data export will be prepared and sent to your email.');
   };
 
   const handleClearData = () => {
@@ -138,10 +134,6 @@ export default function SettingsPage() {
 
       <span style={{ ...s.sectionTitle, marginTop: 32 }}>Data</span>
       <div style={s.settingsCard}>
-        <button style={s.settingsRowBtn} onClick={handleExportData}>
-          <span style={s.settingsLabel}>Export Data</span>
-          <span style={s.settingsArrow}>{'\u203A'}</span>
-        </button>
         <button style={{ ...s.settingsRowBtn, borderBottom: 'none' }} onClick={handleClearData}>
           <span style={s.settingsLabel}>Clear All Data</span>
           <span style={s.settingsArrow}>{'\u203A'}</span>
