@@ -57,7 +57,7 @@ export default function AchievementsPage() {
                     <div style={s.achievementName}>{achievement.description}</div>
                     {unlockData && (
                       <div style={s.unlockDate}>
-                        Unlocked {unlockData.unlockedAt.toLocaleDateString('en-US', {
+                        Achieved on {unlockData.unlockedAt.toLocaleDateString('en-US', {
                           month: 'short',
                           day: 'numeric',
                           year: 'numeric'
