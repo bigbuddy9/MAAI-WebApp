@@ -9,6 +9,7 @@ import { TaskProvider } from '@/contexts/TaskContext';
 import { StatsProvider } from '@/contexts/StatsContext';
 import { AchievementProvider } from '@/contexts/AchievementContext';
 import DashboardLayout, { useBreakpoint } from '@/components/layout/DashboardLayout';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const { session, isLoading } = useAuth();
@@ -79,27 +80,29 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   if (!session || (!hasSubscription && !isHardcodedWhitelisted && !wasWhitelisted)) return null;
 
   return (
-    <GoalProvider>
-      <TaskProvider>
-        <StatsProvider>
-          <AchievementProvider>
-            <div style={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
-              <div
-                style={{
-                  flex: 1,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  minHeight: 0,
-                }}
-              >
-                <DashboardLayout slots={slots}>
-                  {children}
-                </DashboardLayout>
+    <ErrorBoundary>
+      <GoalProvider>
+        <TaskProvider>
+          <StatsProvider>
+            <AchievementProvider>
+              <div style={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
+                <div
+                  style={{
+                    flex: 1,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    minHeight: 0,
+                  }}
+                >
+                  <DashboardLayout slots={slots}>
+                    {children}
+                  </DashboardLayout>
+                </div>
               </div>
-            </div>
-          </AchievementProvider>
-        </StatsProvider>
-      </TaskProvider>
-    </GoalProvider>
+            </AchievementProvider>
+          </StatsProvider>
+        </TaskProvider>
+      </GoalProvider>
+    </ErrorBoundary>
   );
 }
