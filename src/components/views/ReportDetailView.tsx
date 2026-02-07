@@ -313,7 +313,7 @@ export default function ReportDetailView({ reportId, onBack }: ReportDetailViewP
           vsYesterday: calc.calculateComparison(ds.score, yesterdayScore.score, hasYesterdayData),
           vsWeekAvg: calc.calculateComparison(ds.score, weekAvg, hasWeekHistoricalData),
           vsMonthAvg: calc.calculateComparison(ds.score, monthAvg, hasMonthHistoricalData),
-          dayRank: allScoresSorted.length > 0 ? { rank: dayRank || 1, total: allScoresSorted.length } : null,
+          dayRank: allScoresSorted.length > 1 ? { rank: dayRank || 1, total: allScoresSorted.length } : null,
         },
         tasks: taskItems,
         breakdowns: { byImportance, byDifficulty, byGoal },
@@ -812,7 +812,7 @@ export default function ReportDetailView({ reportId, onBack }: ReportDetailViewP
               </div>
               <div style={st.bubbleCard}>
                 <ProgressRing
-                  percent={100}
+                  percent={(data as any).streak > 0 ? Math.min((data as any).streak * 10, 100) : 0}
                   size={52}
                   strokeWidth={4}
                   showValue={true}
@@ -872,7 +872,7 @@ export default function ReportDetailView({ reportId, onBack }: ReportDetailViewP
               </div>
               <div style={st.bubbleCard}>
                 <ProgressRing
-                  percent={100}
+                  percent={(data as any).streak > 0 ? Math.min((data as any).streak * 10, 100) : 0}
                   size={52}
                   strokeWidth={4}
                   showValue={true}
