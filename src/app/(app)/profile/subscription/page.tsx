@@ -93,7 +93,7 @@ export default function SubscriptionPage() {
               <div style={s.planStatus}>Lifetime access</div>
             )}
           </div>
-          <Image src="/logo-icon.png" alt="" width={48} height={48} style={{ opacity: 0.9 }} />
+          <Image src="/logo-icon.png" alt="" width={60} height={60} />
         </div>
       </div>
 
@@ -138,7 +138,7 @@ const s: Record<string, React.CSSProperties> = {
   },
   planCard: {
     backgroundColor: '#000000',
-    border: `1px solid ${colors.border}`,
+    border: '1px solid #111111',
     borderRadius: 16,
     padding: 24,
     marginBottom: 40,
