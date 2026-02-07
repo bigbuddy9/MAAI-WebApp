@@ -644,11 +644,14 @@ export function countPerfectDays(dailyScores: DailyScore[]): number {
 
 /**
  * Calculate comparison between two scores
+ * @param hasComparisonData - If false, returns null to indicate no valid comparison
  */
 export function calculateComparison(
   currentScore: number,
-  comparisonScore: number
-): { value: number; direction: 'up' | 'down' } {
+  comparisonScore: number,
+  hasComparisonData: boolean = true
+): { value: number; direction: 'up' | 'down' } | null {
+  if (!hasComparisonData) return null;
   const difference = currentScore - comparisonScore;
   return {
     value: Math.abs(Math.round(difference)),

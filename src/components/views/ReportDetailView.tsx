@@ -232,15 +232,22 @@ export default function ReportDetailView({ reportId, onBack }: ReportDetailViewP
 
       const yesterday = calc.addDays(dateObj, -1);
       const yesterdayScore = stats.getDailyScore(yesterday);
+      const hasYesterdayData = yesterdayScore.tasksScheduled > 0;
 
       const weekStart = calc.getWeekStart(dateObj);
       const weekEnd = calc.addDays(weekStart, 6);
       const weekScores = buildDates(weekStart, weekEnd).map(d => stats.getDailyScore(d));
+      // Check if there's any data BEFORE today in this week
+      const weekScoresBeforeToday = buildDates(weekStart, calc.addDays(dateObj, -1)).map(d => stats.getDailyScore(d));
+      const hasWeekHistoricalData = weekScoresBeforeToday.some(d => d.tasksScheduled > 0);
       const weekAvg = calc.calculatePeriodScore(weekScores);
 
       const monthStart = new Date(dateObj.getFullYear(), dateObj.getMonth(), 1);
       const monthEnd = new Date(dateObj.getFullYear(), dateObj.getMonth() + 1, 0);
       const monthScores = buildDates(monthStart, monthEnd).map(d => stats.getDailyScore(d));
+      // Check if there's any data BEFORE today in this month
+      const monthScoresBeforeToday = buildDates(monthStart, calc.addDays(dateObj, -1)).map(d => stats.getDailyScore(d));
+      const hasMonthHistoricalData = monthScoresBeforeToday.some(d => d.tasksScheduled > 0);
       const monthAvg = calc.calculatePeriodScore(monthScores);
 
       const allScoresSorted = allTimeDailyScores
@@ -303,10 +310,10 @@ export default function ReportDetailView({ reportId, onBack }: ReportDetailViewP
         totalTasks: ds.tasksScheduled,
         streak: streakAsOf,
         comparisons: {
-          vsYesterday: calc.calculateComparison(ds.score, yesterdayScore.score),
-          vsWeekAvg: calc.calculateComparison(ds.score, weekAvg),
-          vsMonthAvg: calc.calculateComparison(ds.score, monthAvg),
-          dayRank: { rank: dayRank || 1, total: allScoresSorted.length },
+          vsYesterday: calc.calculateComparison(ds.score, yesterdayScore.score, hasYesterdayData),
+          vsWeekAvg: calc.calculateComparison(ds.score, weekAvg, hasWeekHistoricalData),
+          vsMonthAvg: calc.calculateComparison(ds.score, monthAvg, hasMonthHistoricalData),
+          dayRank: allScoresSorted.length > 0 ? { rank: dayRank || 1, total: allScoresSorted.length } : null,
         },
         tasks: taskItems,
         breakdowns: { byImportance, byDifficulty, byGoal },
@@ -321,11 +328,15 @@ export default function ReportDetailView({ reportId, onBack }: ReportDetailViewP
       const prevWeekStart = calc.addDays(weekStart, -7);
       const prevWeekEnd = calc.addDays(weekStart, -1);
       const prevWeekScores = buildDates(prevWeekStart, prevWeekEnd).map(d => stats.getDailyScore(d));
+      const hasPrevWeekData = prevWeekScores.some(d => d.tasksScheduled > 0);
       const prevWeekScore = calc.calculatePeriodScore(prevWeekScores);
 
       const monthStart = new Date(weekStart.getFullYear(), weekStart.getMonth(), 1);
       const monthEnd = new Date(weekStart.getFullYear(), weekStart.getMonth() + 1, 0);
       const monthScores = buildDates(monthStart, monthEnd).map(d => stats.getDailyScore(d));
+      // Check for data before this week in the month
+      const monthScoresBeforeWeek = buildDates(monthStart, calc.addDays(weekStart, -1)).map(d => stats.getDailyScore(d));
+      const hasMonthHistoricalData = monthScoresBeforeWeek.some(d => d.tasksScheduled > 0);
       const monthAvg = calc.calculatePeriodScore(monthScores);
 
       const weekScoresList: number[] = [];
@@ -414,10 +425,10 @@ export default function ReportDetailView({ reportId, onBack }: ReportDetailViewP
         tasksCompleted: totalCompleted,
         totalTasks: totalScheduled,
         comparisons: {
-          vsLastWeek: calc.calculateComparison(score, prevWeekScore),
-          vsLastMonth: calc.calculateComparison(score, monthAvg),
-          vsAllTime: calc.calculateComparison(score, allTimeAvg),
-          weekRank: { rank: weekRank || 1, total: weekScoresList.length },
+          vsLastWeek: calc.calculateComparison(score, prevWeekScore, hasPrevWeekData),
+          vsLastMonth: calc.calculateComparison(score, monthAvg, hasMonthHistoricalData),
+          vsAllTime: calc.calculateComparison(score, allTimeAvg, allTimeAvg > 0 && hasPrevWeekData),
+          weekRank: weekScoresList.length > 1 ? { rank: weekRank || 1, total: weekScoresList.length } : null,
         },
         dailyScores: weekDailyGrid,
         dayPerformance: {
@@ -445,6 +456,7 @@ export default function ReportDetailView({ reportId, onBack }: ReportDetailViewP
     const prevMonthStart = new Date(monthStart.getFullYear(), monthStart.getMonth() - 1, 1);
     const prevMonthEnd = new Date(monthStart.getFullYear(), monthStart.getMonth(), 0);
     const prevMonthScores = buildDates(prevMonthStart, prevMonthEnd).map(d => stats.getDailyScore(d));
+    const hasPrevMonthData = prevMonthScores.some(d => d.tasksScheduled > 0);
     const prevMonthScore = calc.calculatePeriodScore(prevMonthScores);
 
     const monthScoresList: number[] = [];
@@ -542,10 +554,10 @@ export default function ReportDetailView({ reportId, onBack }: ReportDetailViewP
       tasksCompleted: totalCompleted,
       totalTasks: totalScheduled,
       comparisons: {
-        vsLastMonth: calc.calculateComparison(score, prevMonthScore),
-        vsAllTime: calc.calculateComparison(score, allTimeAvg),
+        vsLastMonth: calc.calculateComparison(score, prevMonthScore, hasPrevMonthData),
+        vsAllTime: calc.calculateComparison(score, allTimeAvg, allTimeAvg > 0 && hasPrevMonthData),
         bestWeek: { week: `W${bestWeekNum}`, score: bestWeekScore },
-        monthRank: { rank: monthRank || 1, total: monthScoresList.length },
+        monthRank: monthScoresList.length > 1 ? { rank: monthRank || 1, total: monthScoresList.length } : null,
       },
       calendarStartDay,
       calendarScores,
@@ -814,20 +826,28 @@ export default function ReportDetailView({ reportId, onBack }: ReportDetailViewP
               {/* Row 2: vs Yesterday & vs Week */}
               <div style={st.trendCard}>
                 <span style={st.trendLabel}>vs Yesterday</span>
-                {renderTrendPill((data as any).comparisons.vsYesterday.value, (data as any).comparisons.vsYesterday.direction)}
+                {(data as any).comparisons.vsYesterday
+                  ? renderTrendPill((data as any).comparisons.vsYesterday.value, (data as any).comparisons.vsYesterday.direction)
+                  : <span style={st.noDataText}>—</span>}
               </div>
               <div style={st.trendCard}>
                 <span style={st.trendLabel}>vs Week Avg</span>
-                {renderTrendPill((data as any).comparisons.vsWeekAvg.value, (data as any).comparisons.vsWeekAvg.direction)}
+                {(data as any).comparisons.vsWeekAvg
+                  ? renderTrendPill((data as any).comparisons.vsWeekAvg.value, (data as any).comparisons.vsWeekAvg.direction)
+                  : <span style={st.noDataText}>—</span>}
               </div>
               {/* Row 3: vs Month & Day Rank */}
               <div style={st.trendCard}>
                 <span style={st.trendLabel}>vs Month Avg</span>
-                {renderTrendPill((data as any).comparisons.vsMonthAvg.value, (data as any).comparisons.vsMonthAvg.direction)}
+                {(data as any).comparisons.vsMonthAvg
+                  ? renderTrendPill((data as any).comparisons.vsMonthAvg.value, (data as any).comparisons.vsMonthAvg.direction)
+                  : <span style={st.noDataText}>—</span>}
               </div>
               <div style={st.trendCard}>
                 <span style={st.trendLabel}>Day Rank</span>
-                {renderTrendPill(`#${(data as any).comparisons.dayRank.rank}`, undefined, true, (data as any).comparisons.dayRank.total)}
+                {(data as any).comparisons.dayRank
+                  ? renderTrendPill(`#${(data as any).comparisons.dayRank.rank}`, undefined, true, (data as any).comparisons.dayRank.total)
+                  : <span style={st.noDataText}>—</span>}
               </div>
             </div>
           </div>
@@ -901,19 +921,27 @@ export default function ReportDetailView({ reportId, onBack }: ReportDetailViewP
                 <>
                   <div style={st.trendCard}>
                     <span style={st.trendLabel}>VS LAST WEEK</span>
-                    {renderTrendPill((data as any).comparisons.vsLastWeek.value, (data as any).comparisons.vsLastWeek.direction)}
+                    {(data as any).comparisons.vsLastWeek
+                      ? renderTrendPill((data as any).comparisons.vsLastWeek.value, (data as any).comparisons.vsLastWeek.direction)
+                      : <span style={st.noDataText}>—</span>}
                   </div>
                   <div style={st.trendCard}>
                     <span style={st.trendLabel}>VS LAST MONTH</span>
-                    {renderTrendPill((data as any).comparisons.vsLastMonth.value, (data as any).comparisons.vsLastMonth.direction)}
+                    {(data as any).comparisons.vsLastMonth
+                      ? renderTrendPill((data as any).comparisons.vsLastMonth.value, (data as any).comparisons.vsLastMonth.direction)
+                      : <span style={st.noDataText}>—</span>}
                   </div>
                   <div style={st.trendCard}>
                     <span style={st.trendLabel}>VS ALL-TIME</span>
-                    {renderTrendPill((data as any).comparisons.vsAllTime.value, (data as any).comparisons.vsAllTime.direction)}
+                    {(data as any).comparisons.vsAllTime
+                      ? renderTrendPill((data as any).comparisons.vsAllTime.value, (data as any).comparisons.vsAllTime.direction)
+                      : <span style={st.noDataText}>—</span>}
                   </div>
                   <div style={st.trendCard}>
                     <span style={st.trendLabel}>WEEK RANK</span>
-                    {renderTrendPill(`#${(data as any).comparisons.weekRank.rank}`, undefined, true, (data as any).comparisons.weekRank.total)}
+                    {(data as any).comparisons.weekRank
+                      ? renderTrendPill(`#${(data as any).comparisons.weekRank.rank}`, undefined, true, (data as any).comparisons.weekRank.total)
+                      : <span style={st.noDataText}>—</span>}
                   </div>
                 </>
               )}
@@ -921,11 +949,15 @@ export default function ReportDetailView({ reportId, onBack }: ReportDetailViewP
                 <>
                   <div style={st.trendCard}>
                     <span style={st.trendLabel}>VS LAST MONTH</span>
-                    {renderTrendPill((data as any).comparisons.vsLastMonth.value, (data as any).comparisons.vsLastMonth.direction)}
+                    {(data as any).comparisons.vsLastMonth
+                      ? renderTrendPill((data as any).comparisons.vsLastMonth.value, (data as any).comparisons.vsLastMonth.direction)
+                      : <span style={st.noDataText}>—</span>}
                   </div>
                   <div style={st.trendCard}>
                     <span style={st.trendLabel}>VS ALL-TIME</span>
-                    {renderTrendPill((data as any).comparisons.vsAllTime.value, (data as any).comparisons.vsAllTime.direction)}
+                    {(data as any).comparisons.vsAllTime
+                      ? renderTrendPill((data as any).comparisons.vsAllTime.value, (data as any).comparisons.vsAllTime.direction)
+                      : <span style={st.noDataText}>—</span>}
                   </div>
                   <div style={st.trendCard}>
                     <span style={st.trendLabel}>BEST WEEK</span>
@@ -933,7 +965,9 @@ export default function ReportDetailView({ reportId, onBack }: ReportDetailViewP
                   </div>
                   <div style={st.trendCard}>
                     <span style={st.trendLabel}>MONTH RANK</span>
-                    {renderTrendPill(`#${(data as any).comparisons.monthRank.rank}`, undefined, true, (data as any).comparisons.monthRank.total)}
+                    {(data as any).comparisons.monthRank
+                      ? renderTrendPill(`#${(data as any).comparisons.monthRank.rank}`, undefined, true, (data as any).comparisons.monthRank.total)
+                      : <span style={st.noDataText}>—</span>}
                   </div>
                 </>
               )}
@@ -1366,6 +1400,11 @@ const st: Record<string, React.CSSProperties> = {
     textTransform: 'uppercase',
     letterSpacing: 0.5,
     marginBottom: 10,
+  },
+  noDataText: {
+    fontSize: 20,
+    fontWeight: 600,
+    color: colors.textFaint,
   },
   trendPill: {
     paddingLeft: 16,

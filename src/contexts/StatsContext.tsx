@@ -40,8 +40,8 @@ interface StatsContextType {
   perfectDaysThisMonth: number;
   perfectDaysAllTime: number;
   getGoalProbability: (goalId: number) => number;
-  vsLastWeek: { value: number; direction: 'up' | 'down' };
-  vsAllTime: { value: number; direction: 'up' | 'down' };
+  vsLastWeek: { value: number; direction: 'up' | 'down' } | null;
+  vsAllTime: { value: number; direction: 'up' | 'down' } | null;
   canEditDate: (date: Date) => { canEdit: boolean; isLateLog: boolean };
   isLoading: boolean;
   refreshStats: () => Promise<void>;

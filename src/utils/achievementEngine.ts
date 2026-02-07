@@ -117,13 +117,13 @@ function countPerfectWeeks(completions: TaskCompletion[]): number {
 
   while (cursor <= lastDate) {
     let weekPerfect = true;
-    let weekHasDays = false;
+    let daysWithTasks = 0;
 
     for (let d = 0; d < 7; d++) {
       const dateStr = cursor.toISOString().split('T')[0];
       const entry = dateMap.get(dateStr);
       if (entry && entry.scheduled > 0) {
-        weekHasDays = true;
+        daysWithTasks++;
         if (entry.completed < entry.scheduled) {
           weekPerfect = false;
         }
@@ -131,7 +131,8 @@ function countPerfectWeeks(completions: TaskCompletion[]): number {
       cursor.setDate(cursor.getDate() + 1);
     }
 
-    if (weekHasDays && weekPerfect) {
+    // A perfect week requires ALL 7 days to have tasks AND all completed
+    if (daysWithTasks === 7 && weekPerfect) {
       perfectWeeks++;
     }
   }
@@ -142,18 +143,46 @@ function countPerfectWeeks(completions: TaskCompletion[]): number {
 function countPerfectMonths(completions: TaskCompletion[]): number {
   if (completions.length === 0) return 0;
 
-  const monthMap = new Map<string, { scheduled: number; completed: number }>();
+  // Group completions by month, then by day within each month
+  const monthDayMap = new Map<string, Map<string, { scheduled: number; completed: number }>>();
+
   for (const c of completions) {
-    const monthKey = c.date.substring(0, 7);
-    const entry = monthMap.get(monthKey) || { scheduled: 0, completed: 0 };
+    const monthKey = c.date.substring(0, 7); // YYYY-MM
+    if (!monthDayMap.has(monthKey)) {
+      monthDayMap.set(monthKey, new Map());
+    }
+    const dayMap = monthDayMap.get(monthKey)!;
+    const entry = dayMap.get(c.date) || { scheduled: 0, completed: 0 };
     entry.scheduled++;
     if (c.completed) entry.completed++;
-    monthMap.set(monthKey, entry);
+    dayMap.set(c.date, entry);
   }
 
   let perfectMonths = 0;
-  for (const [, entry] of monthMap) {
-    if (entry.scheduled > 0 && entry.completed === entry.scheduled) {
+
+  for (const [monthKey, dayMap] of monthDayMap) {
+    // Get the number of days in this month
+    const [year, month] = monthKey.split('-').map(Number);
+    const daysInMonth = new Date(year, month, 0).getDate();
+
+    // Check if we have data for all days and all tasks are completed
+    let allDaysHaveTasks = true;
+    let allTasksCompleted = true;
+
+    for (let day = 1; day <= daysInMonth; day++) {
+      const dateStr = `${monthKey}-${day.toString().padStart(2, '0')}`;
+      const entry = dayMap.get(dateStr);
+
+      if (!entry || entry.scheduled === 0) {
+        allDaysHaveTasks = false;
+        break;
+      }
+      if (entry.completed < entry.scheduled) {
+        allTasksCompleted = false;
+      }
+    }
+
+    if (allDaysHaveTasks && allTasksCompleted) {
       perfectMonths++;
     }
   }
