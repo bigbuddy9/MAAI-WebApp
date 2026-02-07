@@ -25,6 +25,7 @@ export default function AccountPage() {
   const { user, signOut } = useAuth();
   const [name, setName] = useState('');
   const [age, setAge] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
   const [editingField, setEditingField] = useState<EditField>(null);
   const [editValue, setEditValue] = useState('');
   const [isSaving, setIsSaving] = useState(false);
@@ -39,7 +40,10 @@ export default function AccountPage() {
   // Fetch profile data on mount
   useEffect(() => {
     const fetchProfile = async () => {
-      if (!user?.id) return;
+      if (!user?.id) {
+        setIsLoading(false);
+        return;
+      }
       const { data, error } = await supabase
         .from('profiles')
         .select('display_name, age')
@@ -49,9 +53,19 @@ export default function AccountPage() {
         setName(data.display_name || '');
         setAge(data.age?.toString() || '');
       }
+      setIsLoading(false);
     };
     fetchProfile();
   }, [user?.id]);
+
+  // Don't render content until profile data is loaded
+  if (isLoading) {
+    return (
+      <ProfileSubPageWrapper>
+        <h1 style={s.pageTitle}>Account Info</h1>
+      </ProfileSubPageWrapper>
+    );
+  }
 
   const openEdit = (field: EditField) => {
     if (field === 'name') {
