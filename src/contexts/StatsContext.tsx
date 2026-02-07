@@ -59,15 +59,46 @@ export function StatsProvider({ children }: { children: ReactNode }) {
 
   const userId = user?.id;
 
-  const loadData = useCallback(async () => {
-    if (!user) {
+  // Load completions when userId changes
+  useEffect(() => {
+    if (!userId) {
       setCompletions([]);
       setIsLoading(false);
       return;
     }
+
+    let cancelled = false;
+    setIsLoading(true);
+
+    db.fetchCompletions(userId)
+      .then(rows => {
+        if (cancelled) return;
+        setCompletions(rows.map(r => ({
+          taskId: r.task_id,
+          date: r.date,
+          completed: r.completed,
+          value: r.value ?? undefined,
+          timestamp: new Date(r.created_at),
+          isLateLogged: r.is_late_logged,
+        })));
+      })
+      .catch(error => {
+        if (cancelled) return;
+        console.error('Error loading completions:', error);
+      })
+      .finally(() => {
+        if (cancelled) return;
+        setIsLoading(false);
+      });
+
+    return () => { cancelled = true; };
+  }, [userId]);
+
+  const refreshStats = useCallback(async () => {
+    if (!userId) return;
     setIsLoading(true);
     try {
-      const rows = await db.fetchCompletions(user.id);
+      const rows = await db.fetchCompletions(userId);
       setCompletions(rows.map(r => ({
         taskId: r.task_id,
         date: r.date,
@@ -77,22 +108,11 @@ export function StatsProvider({ children }: { children: ReactNode }) {
         isLateLogged: r.is_late_logged,
       })));
     } catch (error) {
-      console.error('Error loading completions:', error);
+      console.error('Error refreshing completions:', error);
     } finally {
       setIsLoading(false);
     }
-  }, [user]);
-
-  useEffect(() => {
-    loadData();
-    // Note: intentionally NOT including 'tasks' as dependency
-    // loadData doesn't use tasks, and including it causes race conditions
-    // where optimistic updates get overwritten by stale DB data
-  }, [userId, loadData]);
-
-  const refreshStats = useCallback(async () => {
-    await loadData();
-  }, [loadData]);
+  }, [userId]);
 
   const calcTasks = useMemo((): calculations.Task[] => {
     return tasks.map(t => {
