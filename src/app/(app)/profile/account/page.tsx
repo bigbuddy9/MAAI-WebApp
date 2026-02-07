@@ -23,9 +23,8 @@ type EditField = 'name' | 'age' | null;
 export default function AccountPage() {
   const router = useRouter();
   const { user, signOut } = useAuth();
-  const [name, setName] = useState('');
-  const [age, setAge] = useState('');
-  const [isLoading, setIsLoading] = useState(true);
+  const [name, setName] = useState<string | null>(null);
+  const [age, setAge] = useState<string | null>(null);
   const [editingField, setEditingField] = useState<EditField>(null);
   const [editValue, setEditValue] = useState('');
   const [isSaving, setIsSaving] = useState(false);
@@ -40,10 +39,7 @@ export default function AccountPage() {
   // Fetch profile data on mount
   useEffect(() => {
     const fetchProfile = async () => {
-      if (!user?.id) {
-        setIsLoading(false);
-        return;
-      }
+      if (!user?.id) return;
       const { data, error } = await supabase
         .from('profiles')
         .select('display_name, age')
@@ -52,26 +48,19 @@ export default function AccountPage() {
       if (data && !error) {
         setName(data.display_name || '');
         setAge(data.age?.toString() || '');
+      } else {
+        setName('');
+        setAge('');
       }
-      setIsLoading(false);
     };
     fetchProfile();
   }, [user?.id]);
 
-  // Don't render content until profile data is loaded
-  if (isLoading) {
-    return (
-      <ProfileSubPageWrapper>
-        <h1 style={s.pageTitle}>Account Info</h1>
-      </ProfileSubPageWrapper>
-    );
-  }
-
   const openEdit = (field: EditField) => {
     if (field === 'name') {
-      setEditValue(name);
+      setEditValue(name || '');
     } else if (field === 'age') {
-      setEditValue(age);
+      setEditValue(age || '');
     }
     setEditingField(field);
   };
@@ -147,7 +136,9 @@ export default function AccountPage() {
         <button style={s.editableRow} onClick={() => openEdit('name')}>
           <div style={s.rowContent}>
             <span style={s.infoLabel}>Name</span>
-            <span style={s.infoValue}>{name || <span style={s.emptyValue}>Not set</span>}</span>
+            <span style={s.infoValue}>
+              {name === null ? '\u00A0' : name || <span style={s.emptyValue}>Not set</span>}
+            </span>
           </div>
           <span style={s.rowArrow}>{'\u203A'}</span>
         </button>
@@ -156,7 +147,9 @@ export default function AccountPage() {
         <button style={s.editableRow} onClick={() => openEdit('age')}>
           <div style={s.rowContent}>
             <span style={s.infoLabel}>Age</span>
-            <span style={s.infoValue}>{age || <span style={s.emptyValue}>Not set</span>}</span>
+            <span style={s.infoValue}>
+              {age === null ? '\u00A0' : age || <span style={s.emptyValue}>Not set</span>}
+            </span>
           </div>
           <span style={s.rowArrow}>{'\u203A'}</span>
         </button>

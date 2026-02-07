@@ -17,17 +17,8 @@ const colors = {
 };
 
 export default function SubscriptionPage() {
-  const { status, whitelisted, trialEnd, currentPeriodEnd, cancelAt, isLoading } = useSubscription();
+  const { status, whitelisted, trialEnd, currentPeriodEnd, cancelAt } = useSubscription();
   const [managingLoading, setManagingLoading] = useState(false);
-
-  // Don't render until subscription data is loaded
-  if (isLoading) {
-    return (
-      <ProfileSubPageWrapper>
-        <h1 style={s.pageTitle}>Subscription</h1>
-      </ProfileSubPageWrapper>
-    );
-  }
 
   const getStatusLabel = () => {
     if (whitelisted) return 'VIP Access';
