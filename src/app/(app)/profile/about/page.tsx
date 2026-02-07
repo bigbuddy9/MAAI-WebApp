@@ -34,7 +34,7 @@ export default function AboutPage() {
         Just cold, hard data that shows you exactly who you are and who you&apos;re actually becoming.
       </p>
 
-      <div style={s.settingsCard}>
+      <div style={{ ...s.settingsCard, marginTop: 24 }}>
         <button style={s.settingsRow} onClick={() => handleExternalLink('https://myaccountable.ai/science')}>
           <span style={s.settingsLabel}>See the Science</span>
           <span style={s.externalIcon}>{'\u2197'}</span>
