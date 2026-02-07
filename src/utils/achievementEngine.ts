@@ -231,3 +231,18 @@ export function computeHighlights(
 
   return matched;
 }
+
+// Verify if an achievement should still be considered earned
+export function verifyAchievement(
+  achievementId: string,
+  snapshot: AchievementSnapshot,
+): boolean {
+  const achievement = ACHIEVEMENTS.find(a => a.id === achievementId);
+  if (!achievement) return false;
+
+  try {
+    return achievement.check(snapshot);
+  } catch {
+    return false;
+  }
+}

@@ -6,6 +6,7 @@ import { useStats } from './StatsContext';
 import { useTasks } from './TaskContext';
 import { useGoals } from './GoalContext';
 import { db } from '@/lib/storage';
+import { supabase } from '@/lib/supabase';
 import {
   ACHIEVEMENT_MAP,
   TOTAL_ACHIEVEMENTS,
@@ -17,6 +18,7 @@ import {
   buildSnapshot,
   detectNewAchievements,
   computeHighlights,
+  verifyAchievement,
 } from '@/utils/achievementEngine';
 
 export interface UnlockedAchievement {
@@ -70,6 +72,7 @@ export function AchievementProvider({ children }: { children: ReactNode }) {
   const unlockedIdsRef = useRef<Set<string>>(new Set());
   const checkTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const hasLoadedRef = useRef(false);
+  const hasVerifiedRef = useRef(false);
 
   // Load unlocked achievements from Supabase
   useEffect(() => {
@@ -78,6 +81,7 @@ export function AchievementProvider({ children }: { children: ReactNode }) {
       unlockedIdsRef.current = new Set();
       setIsLoading(false);
       hasLoadedRef.current = false;
+      hasVerifiedRef.current = false;
       return;
     }
 
@@ -101,6 +105,66 @@ export function AchievementProvider({ children }: { children: ReactNode }) {
     }
     load();
   }, [user]);
+
+  // Verify achievements and remove any that were incorrectly granted
+  useEffect(() => {
+    if (!user || !hasLoadedRef.current || stats.isLoading || hasVerifiedRef.current) return;
+    if (unlockedAchievements.length === 0) return;
+
+    hasVerifiedRef.current = true;
+
+    const snapshot = buildSnapshot(
+      {
+        currentStreak: stats.currentStreak,
+        longestStreak: stats.longestStreak,
+        todayScore: stats.todayScore,
+        weeklyScore: stats.weeklyScore,
+        monthlyScore: stats.monthlyScore,
+        allTimeAverage: stats.allTimeAverage,
+        consistency: stats.consistency,
+        todayCompletion: stats.todayCompletion,
+        weeklyCompletion: stats.weeklyCompletion,
+        monthlyCompletion: stats.monthlyCompletion,
+        perfectDaysThisWeek: stats.perfectDaysThisWeek,
+        perfectDaysThisMonth: stats.perfectDaysThisMonth,
+        perfectDaysAllTime: stats.perfectDaysAllTime,
+        weeklyTrend: stats.weeklyTrend,
+        completions: stats.completions,
+      },
+      tasks,
+      goals,
+    );
+
+    // Check each achievement and remove invalid ones
+    const invalidIds: string[] = [];
+    for (const achievement of unlockedAchievements) {
+      if (!verifyAchievement(achievement.achievementId, snapshot)) {
+        invalidIds.push(achievement.achievementId);
+      }
+    }
+
+    if (invalidIds.length > 0) {
+      console.log('[Achievement] Removing invalid achievements:', invalidIds);
+
+      // Delete from database
+      Promise.all(
+        invalidIds.map(id =>
+          supabase
+            .from('user_achievements')
+            .delete()
+            .eq('user_id', user.id)
+            .eq('achievement_id', id)
+            .then(({ error }) => {
+              if (error) console.error(`[Achievement] Failed to delete ${id}:`, error);
+            })
+        )
+      ).then(() => {
+        // Update local state
+        setUnlockedAchievements(prev => prev.filter(a => !invalidIds.includes(a.achievementId)));
+        invalidIds.forEach(id => unlockedIdsRef.current.delete(id));
+      });
+    }
+  }, [user, stats, tasks, goals, unlockedAchievements]);
 
   // Check for new achievements (debounced)
   const checkForAchievements = useCallback(async () => {
