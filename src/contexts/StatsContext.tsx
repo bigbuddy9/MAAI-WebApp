@@ -184,24 +184,27 @@ export function StatsProvider({ children }: { children: ReactNode }) {
   const deferredCalcTasks = useDeferredValue(calcTasks);
   const deferredIndex = useMemo(() => calculations.buildCompletionIndex(deferredCompletions), [deferredCompletions]);
 
-  // Memoize date values to prevent infinite re-renders
-  const todayStr = useMemo(() => calculations.formatDate(new Date()), []);
-  const today = useMemo(() => calculations.parseDate(todayStr), [todayStr]);
-  const weekStart = useMemo(() => calculations.getWeekStart(today), [today]);
-  const monthStart = useMemo(() => calculations.getMonthStart(today), [today]);
+  // Use a stable string for today to prevent Date object reference issues
+  const [todayStr] = useState(() => calculations.formatDate(new Date()));
 
+  // Compute date objects only when needed, not as dependencies
   const weekScores = useMemo(() => {
+    const today = calculations.parseDate(todayStr);
+    const weekStart = calculations.getWeekStart(today);
     return calculations.calculateDailyScoresForRange(deferredCalcTasks, deferredCompletions, weekStart, today, deferredIndex);
-  }, [deferredCalcTasks, deferredCompletions, weekStart, today, deferredIndex]);
+  }, [deferredCalcTasks, deferredCompletions, deferredIndex, todayStr]);
 
   const monthScores = useMemo(() => {
+    const today = calculations.parseDate(todayStr);
+    const monthStart = calculations.getMonthStart(today);
     return calculations.calculateDailyScoresForRange(deferredCalcTasks, deferredCompletions, monthStart, today, deferredIndex);
-  }, [deferredCalcTasks, deferredCompletions, monthStart, today, deferredIndex]);
+  }, [deferredCalcTasks, deferredCompletions, deferredIndex, todayStr]);
 
   const allTimeScores = useMemo(() => {
+    const today = calculations.parseDate(todayStr);
     const yearAgo = calculations.addDays(today, -365);
     return calculations.calculateDailyScoresForRange(deferredCalcTasks, deferredCompletions, yearAgo, today, deferredIndex);
-  }, [deferredCalcTasks, deferredCompletions, today, deferredIndex]);
+  }, [deferredCalcTasks, deferredCompletions, deferredIndex, todayStr]);
 
   const weeklyScore = useMemo(() => calculations.calculatePeriodScore(weekScores), [weekScores]);
   const monthlyScore = useMemo(() => calculations.calculatePeriodScore(monthScores), [monthScores]);
@@ -224,18 +227,21 @@ export function StatsProvider({ children }: { children: ReactNode }) {
   const monthlyCompletion = useMemo(() => calculations.calculateCompletion(monthScores), [monthScores]);
 
   const dailyTrend = useMemo(() => {
+    const today = calculations.parseDate(todayStr);
     const yesterday = calculations.addDays(today, -1);
     const yesterdayScore = getDailyScore(yesterday);
     return calculations.calculateTrend(todayScore.score, yesterdayScore.score);
-  }, [todayScore, getDailyScore, today]);
+  }, [todayScore, getDailyScore, todayStr]);
 
   const weeklyTrend = useMemo(() => {
+    const today = calculations.parseDate(todayStr);
+    const weekStart = calculations.getWeekStart(today);
     const lastWeekStart = calculations.addDays(weekStart, -7);
     const lastWeekEnd = calculations.addDays(weekStart, -1);
     const lastWeekScores = calculations.calculateDailyScoresForRange(deferredCalcTasks, deferredCompletions, lastWeekStart, lastWeekEnd, deferredIndex);
     const lastWeekScore = calculations.calculatePeriodScore(lastWeekScores);
     return calculations.calculateTrend(weeklyScore, lastWeekScore);
-  }, [deferredCalcTasks, deferredCompletions, weekStart, weeklyScore, deferredIndex]);
+  }, [deferredCalcTasks, deferredCompletions, todayStr, weeklyScore, deferredIndex]);
 
   const perfectDaysThisWeek = useMemo(() => calculations.countPerfectDays(weekScores), [weekScores]);
   const perfectDaysThisMonth = useMemo(() => calculations.countPerfectDays(monthScores), [monthScores]);
@@ -251,12 +257,14 @@ export function StatsProvider({ children }: { children: ReactNode }) {
   }, [goals, deferredCalcTasks, deferredCompletions, deferredIndex]);
 
   const vsLastWeek = useMemo(() => {
+    const today = calculations.parseDate(todayStr);
+    const weekStart = calculations.getWeekStart(today);
     const lastWeekStart = calculations.addDays(weekStart, -7);
     const lastWeekEnd = calculations.addDays(weekStart, -1);
     const lastWeekScores = calculations.calculateDailyScoresForRange(deferredCalcTasks, deferredCompletions, lastWeekStart, lastWeekEnd, deferredIndex);
     const lastWeekScore = calculations.calculatePeriodScore(lastWeekScores);
     return calculations.calculateComparison(weeklyScore, lastWeekScore);
-  }, [deferredCalcTasks, deferredCompletions, weekStart, weeklyScore, deferredIndex]);
+  }, [deferredCalcTasks, deferredCompletions, todayStr, weeklyScore, deferredIndex]);
 
   const vsAllTime = useMemo(() => calculations.calculateComparison(weeklyScore, allTimeAverage), [weeklyScore, allTimeAverage]);
 
