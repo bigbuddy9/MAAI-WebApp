@@ -159,13 +159,13 @@ function formatMetricValue(val: number): string {
 
 export default function ReportDetailView({ reportId, onBack }: ReportDetailViewProps) {
   const stats = useStats();
-  const { tasks } = useTasks();
-  const { goals } = useGoals();
+  const { tasks, isLoading: tasksLoading } = useTasks();
+  const { goals, isLoading: goalsLoading } = useGoals();
 
   const { type } = parseReportId(reportId);
 
   const data = useMemo(() => {
-    if (!reportId) return null;
+    if (!reportId || stats.isLoading || tasksLoading || goalsLoading) return null;
     const { type: reportType, id } = parseReportId(reportId);
     const { start, end } = parseDateRange(reportType, id);
     const dates = buildDates(start, end);

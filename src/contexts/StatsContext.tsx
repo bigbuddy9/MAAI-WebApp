@@ -184,9 +184,11 @@ export function StatsProvider({ children }: { children: ReactNode }) {
   const deferredCalcTasks = useDeferredValue(calcTasks);
   const deferredIndex = useMemo(() => calculations.buildCompletionIndex(deferredCompletions), [deferredCompletions]);
 
-  const today = new Date();
-  const weekStart = calculations.getWeekStart(today);
-  const monthStart = calculations.getMonthStart(today);
+  // Memoize date values to prevent infinite re-renders
+  const todayStr = useMemo(() => calculations.formatDate(new Date()), []);
+  const today = useMemo(() => calculations.parseDate(todayStr), [todayStr]);
+  const weekStart = useMemo(() => calculations.getWeekStart(today), [today]);
+  const monthStart = useMemo(() => calculations.getMonthStart(today), [today]);
 
   const weekScores = useMemo(() => {
     return calculations.calculateDailyScoresForRange(deferredCalcTasks, deferredCompletions, weekStart, today, deferredIndex);
