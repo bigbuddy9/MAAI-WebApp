@@ -23,15 +23,15 @@ export default function AboutPage() {
       <p style={s.tagline}>Your brain lies to you. Data doesn&apos;t.</p>
 
       <p style={s.description}>
-        MyAccountable.ai is a data-driven accountability platform that turns your daily actions into measurable progress.
+        MyAccountableAI is a data-driven accountability platform that turns your daily actions into measurable progress.
       </p>
 
       <p style={s.description}>
-        No motivational fluff. No empty promises. No excuses.
+        No motivational fluff. No excuses. No bullshit.
       </p>
 
       <p style={s.description}>
-        Just cold, hard data that shows you exactly who you are and who you&apos;re becoming.
+        Just cold, hard data that shows you exactly who you are and who you&apos;re actually becoming.
       </p>
 
       <div style={s.settingsCard}>
