@@ -5,7 +5,7 @@ import { useStats } from '@/contexts/StatsContext';
 import { useTasks, Task } from '@/contexts/TaskContext';
 import { useGoals } from '@/contexts/GoalContext';
 import * as calc from '@/shared';
-import { getTierByPercentage, colors, spacing, borderRadius } from '@/shared';
+import { getTierByPercentage, colors, spacing, borderRadius, getGoalColor } from '@/shared';
 
 type ReportType = 'daily' | 'weekly' | 'monthly';
 
@@ -14,6 +14,7 @@ interface TaskItem {
   importance: string;
   difficulty: string;
   completed: boolean;
+  goalPriority: number;
 }
 
 interface ReportDetailViewProps {
@@ -277,11 +278,13 @@ export default function ReportDetailView({ reportId, onBack }: ReportDetailViewP
         const isComplete = t.type === 'number'
           ? (comp?.value ?? 0) >= (t.target ?? 1)
           : (comp?.completed ?? false);
+        const goal = goals.find(g => g.id === t.goalId);
         return {
           name: t.name,
           importance: IMPORTANCE_LABEL[t.importance] || t.importance,
           difficulty: DIFFICULTY_LABEL[t.difficulty] || t.difficulty,
           completed: isComplete,
+          goalPriority: goal?.priority ?? 99,
         };
       });
 
@@ -1097,20 +1100,25 @@ export default function ReportDetailView({ reportId, onBack }: ReportDetailViewP
           <div style={st.section}>
             <span style={st.sectionTitle}>TASKS</span>
             <div style={st.taskList}>
-              {(data as any).tasks.map((task: TaskItem, i: number) => (
-                <div key={i} style={st.taskRow}>
-                  <div style={st.taskInfo}>
-                    <span style={st.taskName}>{task.name}</span>
-                    <span style={st.taskMeta}>{task.importance} · {task.difficulty}</span>
+              {(data as any).tasks.map((task: TaskItem, i: number) => {
+                const goalColor = getGoalColor(task.goalPriority);
+                const circleColor = goalColor.main;
+                return (
+                  <div key={i} style={st.taskRow}>
+                    <div style={st.taskInfo}>
+                      <span style={st.taskName}>{task.name}</span>
+                      <span style={st.taskMeta}>{task.importance} · {task.difficulty}</span>
+                    </div>
+                    <svg width="24" height="24" viewBox="0 0 24 24">
+                      {task.completed ? (
+                        <circle cx="12" cy="12" r="10" fill={circleColor} />
+                      ) : (
+                        <circle cx="12" cy="12" r="9" fill="none" stroke={circleColor} strokeWidth="2" />
+                      )}
+                    </svg>
                   </div>
-                  <div style={{
-                    ...st.taskStatus,
-                    ...(task.completed ? st.taskStatusComplete : st.taskStatusIncomplete),
-                  }}>
-                    <span style={st.taskStatusText}>{task.completed ? '\u2713' : '\u2014'}</span>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}
