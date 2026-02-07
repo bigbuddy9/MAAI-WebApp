@@ -45,34 +45,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     let mounted = true;
 
+    // Get session and set loading to false IMMEDIATELY after
+    // Profile loading happens in background - don't block on it
     supabase.auth.getSession()
-      .then(async ({ data: { session } }) => {
+      .then(({ data: { session } }) => {
         if (!mounted) return;
         setSession(session);
+        setIsLoading(false); // Set loading false RIGHT AWAY
+        // Fetch profile in background - don't await
         if (session?.user?.id) {
-          try {
-            await fetchProfile(session.user.id);
-          } catch (e) {
-            console.error('Error fetching profile:', e);
-          }
+          fetchProfile(session.user.id).catch(e =>
+            console.error('Error fetching profile:', e)
+          );
         }
       })
       .catch(e => {
         console.error('Error getting session:', e);
-      })
-      .finally(() => {
         if (mounted) setIsLoading(false);
       });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (!mounted) return;
       setSession(session);
       if (session?.user?.id) {
-        try {
-          await fetchProfile(session.user.id);
-        } catch (e) {
-          console.error('Error fetching profile on auth change:', e);
-        }
+        // Fetch profile in background - don't await
+        fetchProfile(session.user.id).catch(e =>
+          console.error('Error fetching profile on auth change:', e)
+        );
       } else {
         setProfile({ displayName: '', age: '' });
       }
