@@ -116,29 +116,38 @@ export function GoalProvider({ children }: { children: ReactNode }) {
   const [goals, setGoals] = useState<Goal[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  const userId = user?.id;
+
+  // Load goals when userId changes
   useEffect(() => {
-    if (!user) {
+    if (!userId) {
       setGoals([]);
       setIsLoading(false);
       return;
     }
 
-    async function loadGoals() {
-      setIsLoading(true);
-      try {
-        const [goalRows, milestoneRows] = await Promise.all([
-          db.fetchGoals(user!.id),
-          db.fetchMilestones(user!.id),
-        ]);
+    let cancelled = false;
+    setIsLoading(true);
+
+    Promise.all([
+      db.fetchGoals(userId),
+      db.fetchMilestones(userId),
+    ])
+      .then(([goalRows, milestoneRows]) => {
+        if (cancelled) return;
         setGoals(goalRows.map(r => toGoal(r, milestoneRows)));
-      } catch (error) {
+      })
+      .catch(error => {
+        if (cancelled) return;
         console.error('Error loading goals:', error);
-      } finally {
+      })
+      .finally(() => {
+        if (cancelled) return;
         setIsLoading(false);
-      }
-    }
-    loadGoals();
-  }, [user]);
+      });
+
+    return () => { cancelled = true; };
+  }, [userId]);
 
   const addGoal = useCallback(async (goalData: Omit<Goal, 'id' | 'priority' | 'timeElapsed' | 'taskRate' | 'probability' | 'tasks' | 'trend' | 'completed' | 'createdAt'>) => {
     if (!user) return;

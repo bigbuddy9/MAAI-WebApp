@@ -63,6 +63,8 @@ export function TaskProvider({ children }: { children: ReactNode }) {
   const [tasksLoading, setTasksLoading] = useState(true);
   const isLoading = tasksLoading || goalsLoading;
 
+  const userId = user?.id;
+
   const goalPriorityMap = useMemo(() => {
     const map = new Map<number, number>();
     goals.forEach(g => map.set(g.id, g.priority));
@@ -76,28 +78,35 @@ export function TaskProvider({ children }: { children: ReactNode }) {
     }));
   }, [rawTasks, goalPriorityMap]);
 
+  // Load tasks when userId changes or goals finish loading
   useEffect(() => {
-    if (!user || goalsLoading) {
-      if (!user) {
+    if (!userId || goalsLoading) {
+      if (!userId) {
         setRawTasks([]);
         setTasksLoading(false);
       }
       return;
     }
 
-    async function loadTasks() {
-      setTasksLoading(true);
-      try {
-        const rows = await db.fetchTasks(user!.id);
+    let cancelled = false;
+    setTasksLoading(true);
+
+    db.fetchTasks(userId)
+      .then(rows => {
+        if (cancelled) return;
         setRawTasks(rows.map(r => toTask(r)));
-      } catch (error) {
+      })
+      .catch(error => {
+        if (cancelled) return;
         console.error('Error loading tasks:', error);
-      } finally {
+      })
+      .finally(() => {
+        if (cancelled) return;
         setTasksLoading(false);
-      }
-    }
-    loadTasks();
-  }, [user, goalsLoading]);
+      });
+
+    return () => { cancelled = true; };
+  }, [userId, goalsLoading]);
 
   const addTask = useCallback(async (task: Omit<Task, 'id' | 'createdAt'>, createdAt?: string) => {
     if (!user) return;
