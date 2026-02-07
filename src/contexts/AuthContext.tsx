@@ -43,24 +43,45 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      setSession(session);
-      if (session?.user?.id) {
-        await fetchProfile(session.user.id);
-      }
-      setIsLoading(false);
-    });
+    let mounted = true;
+
+    supabase.auth.getSession()
+      .then(async ({ data: { session } }) => {
+        if (!mounted) return;
+        setSession(session);
+        if (session?.user?.id) {
+          try {
+            await fetchProfile(session.user.id);
+          } catch (e) {
+            console.error('Error fetching profile:', e);
+          }
+        }
+      })
+      .catch(e => {
+        console.error('Error getting session:', e);
+      })
+      .finally(() => {
+        if (mounted) setIsLoading(false);
+      });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      if (!mounted) return;
       setSession(session);
       if (session?.user?.id) {
-        await fetchProfile(session.user.id);
+        try {
+          await fetchProfile(session.user.id);
+        } catch (e) {
+          console.error('Error fetching profile on auth change:', e);
+        }
       } else {
         setProfile({ displayName: '', age: '' });
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, [fetchProfile]);
 
   const signUp = useCallback(async (email: string, password: string, displayName?: string) => {

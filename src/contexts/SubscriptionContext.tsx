@@ -32,14 +32,48 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
     isLoading: true,
   });
 
-  const fetchSubscription = useCallback(async () => {
-    if (!user) {
+  const userId = user?.id;
+  const userEmail = user?.email;
+
+  // Fetch subscription when user changes
+  useEffect(() => {
+    if (!userId) {
       setState(prev => ({ ...prev, active: false, status: 'none', isLoading: false }));
       return;
     }
 
+    let cancelled = false;
+
+    fetch(`/api/subscription?userId=${userId}&email=${encodeURIComponent(userEmail || '')}`)
+      .then(res => {
+        if (!res.ok) throw new Error('Failed to fetch subscription');
+        return res.json();
+      })
+      .then(data => {
+        if (cancelled) return;
+        setState({
+          active: data.active,
+          status: data.status,
+          whitelisted: data.whitelisted ?? false,
+          trialEnd: data.trialEnd ?? null,
+          currentPeriodEnd: data.currentPeriodEnd ?? null,
+          cancelAt: data.cancelAt ?? null,
+          isLoading: false,
+        });
+      })
+      .catch(error => {
+        if (cancelled) return;
+        console.error('Error fetching subscription:', error);
+        setState(prev => ({ ...prev, isLoading: false }));
+      });
+
+    return () => { cancelled = true; };
+  }, [userId, userEmail]);
+
+  const refreshSubscription = useCallback(async () => {
+    if (!userId) return;
     try {
-      const res = await fetch(`/api/subscription?userId=${user.id}&email=${encodeURIComponent(user.email || '')}`);
+      const res = await fetch(`/api/subscription?userId=${userId}&email=${encodeURIComponent(userEmail || '')}`);
       if (!res.ok) throw new Error('Failed to fetch subscription');
       const data = await res.json();
       setState({
@@ -53,21 +87,16 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
       });
     } catch (error) {
       console.error('Error fetching subscription:', error);
-      setState(prev => ({ ...prev, isLoading: false }));
     }
-  }, [user]);
-
-  useEffect(() => {
-    fetchSubscription();
-  }, [fetchSubscription]);
+  }, [userId, userEmail]);
 
   const startCheckout = useCallback(async () => {
-    if (!user) return;
+    if (!userId) return;
     try {
       const res = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: user.id, email: user.email }),
+        body: JSON.stringify({ userId, email: userEmail }),
       });
       const { url } = await res.json();
       if (url) {
@@ -76,13 +105,13 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
     } catch (error) {
       console.error('Checkout error:', error);
     }
-  }, [user]);
+  }, [userId, userEmail]);
 
   const value = useMemo(() => ({
     ...state,
-    refreshSubscription: fetchSubscription,
+    refreshSubscription,
     startCheckout,
-  }), [state, fetchSubscription, startCheckout]);
+  }), [state, refreshSubscription, startCheckout]);
 
   return (
     <SubscriptionContext.Provider value={value}>
