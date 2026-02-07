@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
@@ -22,9 +22,7 @@ type EditField = 'name' | 'age' | null;
 
 export default function AccountPage() {
   const router = useRouter();
-  const { user, signOut } = useAuth();
-  const [name, setName] = useState<string | null>(null);
-  const [age, setAge] = useState<string | null>(null);
+  const { user, profile, updateProfile, signOut } = useAuth();
   const [editingField, setEditingField] = useState<EditField>(null);
   const [editValue, setEditValue] = useState('');
   const [isSaving, setIsSaving] = useState(false);
@@ -36,31 +34,11 @@ export default function AccountPage() {
       : 'Unknown',
   };
 
-  // Fetch profile data on mount
-  useEffect(() => {
-    const fetchProfile = async () => {
-      if (!user?.id) return;
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('display_name, age')
-        .eq('id', user.id)
-        .single();
-      if (data && !error) {
-        setName(data.display_name || '');
-        setAge(data.age?.toString() || '');
-      } else {
-        setName('');
-        setAge('');
-      }
-    };
-    fetchProfile();
-  }, [user?.id]);
-
   const openEdit = (field: EditField) => {
     if (field === 'name') {
-      setEditValue(name || '');
+      setEditValue(profile.displayName);
     } else if (field === 'age') {
-      setEditValue(age || '');
+      setEditValue(profile.age);
     }
     setEditingField(field);
   };
@@ -92,11 +70,11 @@ export default function AccountPage() {
         return;
       }
 
-      // Update local state on success
+      // Update context state on success
       if (editingField === 'name') {
-        setName(editValue);
+        updateProfile({ displayName: editValue });
       } else if (editingField === 'age') {
-        setAge(editValue);
+        updateProfile({ age: editValue });
       }
       setEditingField(null);
     } finally {
@@ -137,7 +115,7 @@ export default function AccountPage() {
           <div style={s.rowContent}>
             <span style={s.infoLabel}>Name</span>
             <span style={s.infoValue}>
-              {name === null ? '\u00A0' : name || <span style={s.emptyValue}>Not set</span>}
+              {profile.displayName || <span style={s.emptyValue}>Not set</span>}
             </span>
           </div>
           <span style={s.rowArrow}>{'\u203A'}</span>
@@ -148,7 +126,7 @@ export default function AccountPage() {
           <div style={s.rowContent}>
             <span style={s.infoLabel}>Age</span>
             <span style={s.infoValue}>
-              {age === null ? '\u00A0' : age || <span style={s.emptyValue}>Not set</span>}
+              {profile.age || <span style={s.emptyValue}>Not set</span>}
             </span>
           </div>
           <span style={s.rowArrow}>{'\u203A'}</span>
